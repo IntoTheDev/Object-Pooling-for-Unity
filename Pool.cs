@@ -13,6 +13,7 @@ namespace ToolBox.Pools
 
 		private Queue<Poolable> entities;
 		private int currentCount;
+		private bool isPooled;
 
 		public void Fill()
 		{
@@ -26,6 +27,8 @@ namespace ToolBox.Pools
 				entities.Enqueue(entity);
 				entity.gameObject.SetActive(false);
 			}
+
+			isPooled = true;
 		}
 
 		public Poolable GetEntity()
@@ -76,9 +79,12 @@ namespace ToolBox.Pools
 
 		private Poolable TakeEntity()
 		{
-			Poolable entity = null;
+			if (!isPooled)
+				Fill();
 
-			if (currentCount <= 0)
+			Poolable entity;
+
+			if (currentCount == 0)
 			{
 				if (isResizable)
 				{
