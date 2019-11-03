@@ -36,19 +36,6 @@ namespace ToolBox.Pools
 
 		public Poolable GetEntity() => TakeEntity();
 
-		public void ReturnEntity(Poolable entity)
-		{
-			if (entity.Pool != this)
-				return;
-
-			entities.Enqueue(entity);
-
-			entity.transform.SetParent(parent, false);
-			entity.gameObject.SetActive(false);
-
-			currentCount++;
-		}
-
 		public Poolable GetEntity(Transform parent, bool spawnInWorldSpace)
 		{
 			Poolable entity = TakeEntity();
@@ -76,6 +63,19 @@ namespace ToolBox.Pools
 			entityTransform.SetParent(parent, spawnInWorldSpace);
 
 			return entity;
+		}
+
+		public void ReturnEntity(Poolable entity)
+		{
+			if (entity.Pool != this)
+				return;
+
+			entities.Enqueue(entity);
+
+			entity.transform.SetParent(parent, false);
+			entity.gameObject.SetActive(false);
+
+			currentCount++;
 		}
 
 		private Poolable TakeEntity()
