@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ToolBox.Pools
 {
 	[System.Serializable]
-	public struct Pool
+	public class Pool
 	{
 		[SerializeField] private Poolable prefab;
 		[SerializeField] private int startCount;
@@ -13,33 +13,34 @@ namespace ToolBox.Pools
 
 		private Queue<Poolable> entities;
 		private int currentCount;
-		private bool isPooled;
+		private bool isFilled;
 
 		public void Fill()
 		{
+			if (isFilled)
+				return;
+
 			entities = new Queue<Poolable>(startCount);
 			currentCount = startCount;
 
 			for (int i = 0; i < startCount; i++)
 			{
 				Poolable entity = Object.Instantiate(prefab, parent.localPosition, Quaternion.identity, parent);
-				entity.pool = this;
+				entity.SetPool(this);
 				entities.Enqueue(entity);
 				entity.gameObject.SetActive(false);
 			}
 
-			isPooled = true;
+			isFilled = true;
 		}
 
-		public Poolable GetEntity()
-		{
-			Poolable entity = TakeEntity();
-
-			return entity;
-		}
+		public Poolable GetEntity() => TakeEntity();
 
 		public void ReturnEntity(Poolable entity)
 		{
+			if (entity.Pool != this)
+				return;
+
 			entities.Enqueue(entity);
 
 			entity.transform.SetParent(parent, false);
@@ -79,7 +80,7 @@ namespace ToolBox.Pools
 
 		private Poolable TakeEntity()
 		{
-			if (!isPooled)
+			if (!isFilled)
 				Fill();
 
 			Poolable entity;
@@ -89,7 +90,8 @@ namespace ToolBox.Pools
 				if (isResizable)
 				{
 					entity = Object.Instantiate(prefab, parent.localPosition, Quaternion.identity, parent);
-					entity.pool = this;
+					entity.SetPool(this);
+					entity.ReturnFromPool();
 					return entity;
 				}
 				else
@@ -100,6 +102,7 @@ namespace ToolBox.Pools
 
 			entity = entities.Dequeue();
 			entity.gameObject.SetActive(true);
+			entity.ReturnFromPool();
 
 			currentCount--;
 
