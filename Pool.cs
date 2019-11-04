@@ -6,14 +6,14 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField] private Poolable prefab;
-		[SerializeField] private int startCount;
-		[SerializeField] private bool isResizable;
-		[SerializeField] private Transform parent;
+		[SerializeField] private Poolable prefab = null;
+		[SerializeField] private int startCount = 0;
+		[SerializeField] private bool isResizable = false;
+		[SerializeField] private Transform parent = null;
 
-		private Queue<Poolable> entities;
-		private int currentCount;
-		private bool isFilled;
+		private Queue<Poolable> entities = null;
+		private int currentCount = 0;
+		private bool isFilled = false;
 
 		public void Fill()
 		{
@@ -25,7 +25,7 @@ namespace ToolBox.Pools
 
 			for (int i = 0; i < startCount; i++)
 			{
-				Poolable entity = Object.Instantiate(prefab, parent.localPosition, Quaternion.identity, parent);
+				Poolable entity = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity, parent);
 				entity.SetPool(this);
 				entities.Enqueue(entity);
 				entity.gameObject.SetActive(false);
@@ -34,13 +34,21 @@ namespace ToolBox.Pools
 			isFilled = true;
 		}
 
-		public Poolable GetEntity() => TakeEntity();
+		public Poolable GetEntity()
+		{
+			Poolable entity = TakeEntity();
+
+			entity.ReturnFromPool();
+
+			return entity;
+		}
 
 		public Poolable GetEntity(Transform parent, bool spawnInWorldSpace)
 		{
 			Poolable entity = TakeEntity();
 
 			entity.transform.SetParent(parent, spawnInWorldSpace);
+			entity.ReturnFromPool();
 
 			return entity;
 		}
@@ -50,6 +58,7 @@ namespace ToolBox.Pools
 			Poolable entity = TakeEntity();
 
 			entity.transform.SetPositionAndRotation(position, rotation);
+			entity.ReturnFromPool();
 
 			return entity;
 		}
@@ -57,10 +66,11 @@ namespace ToolBox.Pools
 		public Poolable GetEntity(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
 		{
 			Poolable entity = TakeEntity();
-
 			Transform entityTransform = entity.transform;
-			entityTransform.SetPositionAndRotation(position, rotation);
+
 			entityTransform.SetParent(parent, spawnInWorldSpace);
+			entityTransform.SetPositionAndRotation(position, rotation);
+			entity.ReturnFromPool();
 
 			return entity;
 		}
@@ -91,7 +101,6 @@ namespace ToolBox.Pools
 				{
 					entity = Object.Instantiate(prefab, parent.localPosition, Quaternion.identity, parent);
 					entity.SetPool(this);
-					entity.ReturnFromPool();
 					return entity;
 				}
 				else
@@ -102,7 +111,6 @@ namespace ToolBox.Pools
 
 			entity = entities.Dequeue();
 			entity.gameObject.SetActive(true);
-			entity.ReturnFromPool();
 
 			currentCount--;
 
