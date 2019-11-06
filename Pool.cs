@@ -9,10 +9,9 @@ namespace ToolBox.Pools
 		[SerializeField] private Poolable prefab = null;
 		[SerializeField] private int startCount = 0;
 		[SerializeField] private bool isResizable = false;
-		[SerializeField] private Transform parent = null;
+		[SerializeField] private Transform holder = null;
 
 		private Queue<Poolable> entities = null;
-		private int currentCount = 0;
 		private bool isFilled = false;
 
 		public void Fill()
@@ -21,11 +20,10 @@ namespace ToolBox.Pools
 				return;
 
 			entities = new Queue<Poolable>(startCount);
-			currentCount = startCount;
 
 			for (int i = 0; i < startCount; i++)
 			{
-				Poolable entity = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity, parent);
+				Poolable entity = Object.Instantiate(prefab, holder);
 				entity.SetPool(this);
 				entities.Enqueue(entity);
 				entity.gameObject.SetActive(false);
@@ -82,10 +80,8 @@ namespace ToolBox.Pools
 
 			entities.Enqueue(entity);
 
-			entity.transform.SetParent(parent, false);
+			entity.transform.SetParent(holder, false);
 			entity.gameObject.SetActive(false);
-
-			currentCount++;
 		}
 
 		private Poolable TakeEntity()
@@ -95,11 +91,11 @@ namespace ToolBox.Pools
 
 			Poolable entity;
 
-			if (currentCount == 0)
+			if (entities.Count == 0)
 			{
 				if (isResizable)
 				{
-					entity = Object.Instantiate(prefab, parent.localPosition, Quaternion.identity, parent);
+					entity = Object.Instantiate(prefab, holder);
 					entity.SetPool(this);
 					return entity;
 				}
@@ -110,9 +106,14 @@ namespace ToolBox.Pools
 			}
 
 			entity = entities.Dequeue();
-			entity.gameObject.SetActive(true);
 
-			currentCount--;
+			if (entity == null)
+			{
+				entity = Object.Instantiate(prefab, holder);
+				entity.SetPool(this);
+			}
+
+			entity.gameObject.SetActive(true);
 
 			return entity;
 		}
