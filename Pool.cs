@@ -14,6 +14,14 @@ namespace ToolBox.Pools
 		private Queue<Poolable> entities = null;
 		private bool isFilled = false;
 
+		public Pool(Poolable prefab, int startCount, bool isResizable, Transform holder)
+		{
+			this.prefab = prefab;
+			this.startCount = startCount;
+			this.isResizable = isResizable;
+			this.holder = holder;
+		}
+
 		public void Fill()
 		{
 			if (isFilled)
