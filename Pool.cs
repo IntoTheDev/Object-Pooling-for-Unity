@@ -13,6 +13,7 @@ namespace ToolBox.Pools
 
 		private Queue<Poolable> entities = null;
 		private bool isFilled = false;
+		private int currentCount = 0;
 
 		public Pool(Poolable prefab, int startCount, bool isResizable, Transform holder)
 		{
@@ -28,6 +29,7 @@ namespace ToolBox.Pools
 				return;
 
 			entities = new Queue<Poolable>(startCount);
+			currentCount = startCount;
 
 			for (int i = 0; i < startCount; i++)
 			{
@@ -44,6 +46,9 @@ namespace ToolBox.Pools
 		{
 			Poolable entity = TakeEntity();
 
+			if (IsEmpty(entity))
+				return null;
+
 			entity.ReturnFromPool();
 
 			return entity;
@@ -52,6 +57,9 @@ namespace ToolBox.Pools
 		public Poolable GetEntity(Transform parent, bool spawnInWorldSpace)
 		{
 			Poolable entity = TakeEntity();
+
+			if (IsEmpty(entity))
+				return null;
 
 			entity.transform.SetParent(parent, spawnInWorldSpace);
 			entity.ReturnFromPool();
@@ -63,6 +71,9 @@ namespace ToolBox.Pools
 		{
 			Poolable entity = TakeEntity();
 
+			if (IsEmpty(entity))
+				return null;
+
 			entity.transform.SetPositionAndRotation(position, rotation);
 			entity.ReturnFromPool();
 
@@ -72,6 +83,10 @@ namespace ToolBox.Pools
 		public Poolable GetEntity(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
 		{
 			Poolable entity = TakeEntity();
+
+			if (IsEmpty(entity))
+				return null;
+
 			Transform entityTransform = entity.transform;
 
 			entityTransform.SetParent(parent, spawnInWorldSpace);
@@ -87,6 +102,7 @@ namespace ToolBox.Pools
 				return;
 
 			entities.Enqueue(entity);
+			currentCount++;
 
 			entity.transform.SetParent(holder, false);
 			entity.gameObject.SetActive(false);
@@ -99,7 +115,7 @@ namespace ToolBox.Pools
 
 			Poolable entity;
 
-			if (entities.Count == 0)
+			if (currentCount == 0)
 			{
 				if (isResizable)
 				{
@@ -119,11 +135,15 @@ namespace ToolBox.Pools
 			{
 				entity = Object.Instantiate(prefab, holder);
 				entity.SetPool(this);
+				currentCount++;
 			}
 
 			entity.gameObject.SetActive(true);
+			currentCount--;
 
 			return entity;
 		}
+
+		private bool IsEmpty(Poolable entity) => !isResizable && entity == null;
 	}
 }
