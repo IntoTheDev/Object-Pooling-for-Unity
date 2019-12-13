@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Sirenix.OdinInspector;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ToolBox.Pools
@@ -6,10 +7,10 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField] private Poolable prefab = null;
+		[SerializeField, AssetsOnly] private Poolable prefab = null;
 		[SerializeField] private int startCount = 0;
 		[SerializeField] private bool isResizable = false;
-		[SerializeField] private Transform holder = null;
+		[SerializeField, SceneObjectsOnly] private Transform holder = null;
 
 		private Queue<Poolable> entities = null;
 		private bool isFilled = false;
