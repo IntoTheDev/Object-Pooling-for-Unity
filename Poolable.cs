@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 
 namespace ToolBox.Pools
 {
@@ -7,30 +8,18 @@ namespace ToolBox.Pools
 	{
 		public Pool Pool { get; private set; } = null;
 
-		private IPoolResetter[] poolResetters = null;
-		private IPoolInitializer[] poolInitializers = null;
-
-		private int poolResettersCount = 0;
-		private int poolInitializersCount = 0;
+		[SerializeField] private UnityEvent OnBackToPool = null;
+		[SerializeField] private UnityEvent OnBackFromPool = null;
 
 		private bool isPooled = false;
 		private bool isEnabled = true;
-
-		private void Awake()
-		{
-			poolResetters = GetComponentsInChildren<IPoolResetter>();
-			poolInitializers = GetComponentsInChildren<IPoolInitializer>();
-			poolResettersCount = poolResetters.Length;
-			poolInitializersCount = poolInitializers.Length;
-		}
 
 		public void ReturnToPool()
 		{
 			if (!isEnabled)
 				return;
 
-			for (int i = 0; i < poolResettersCount; i++)
-				poolResetters[i].Reset();
+			OnBackToPool?.Invoke();
 
 			Pool.ReturnEntity(this);
 			isEnabled = false;
@@ -38,9 +27,7 @@ namespace ToolBox.Pools
 
 		public void ReturnFromPool()
 		{
-			for (int i = 0; i < poolInitializersCount; i++)
-				poolInitializers[i].Initialize();
-
+			OnBackFromPool?.Invoke();
 			isEnabled = true;
 		}
 

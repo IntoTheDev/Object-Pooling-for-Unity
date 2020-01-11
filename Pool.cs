@@ -7,14 +7,15 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField, AssetsOnly] private Poolable prefab = null;
-		[SerializeField] private int startCount = 0;
-		[SerializeField] private bool isResizable = false;
-		[SerializeField, SceneObjectsOnly] private Transform holder = null;
+		[SerializeField, AssetsOnly, TabGroup("Data")] private Poolable prefab = null;
+		[SerializeField, TabGroup("Data")] private int startCount = 0;
+		[SerializeField, TabGroup("Data")] private bool isResizable = false;
+		[SerializeField, SceneObjectsOnly, TabGroup("Data")] private Transform holder = null;
+
+		[SerializeField, ReadOnly, TabGroup("Debug")] private bool isFilled = false;
+		[SerializeField, ReadOnly, TabGroup("Debug")] private int currentCount = 0;
 
 		private Queue<Poolable> entities = null;
-		private bool isFilled = false;
-		private int currentCount = 0;
 
 		public Pool(Poolable prefab, int startCount, bool isResizable, Transform holder)
 		{
@@ -145,6 +146,7 @@ namespace ToolBox.Pools
 			return entity;
 		}
 
-		private bool IsEmpty(Poolable entity) => !isResizable && entity == null;
+		private bool IsEmpty(Poolable entity) =>
+			!isResizable && entity == null;
 	}
 }
