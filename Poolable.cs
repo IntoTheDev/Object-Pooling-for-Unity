@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace ToolBox.Pools
@@ -13,6 +13,7 @@ namespace ToolBox.Pools
 
 		private bool isPooled = false;
 		private bool isEnabled = true;
+		private bool wasSpawnedBefore = false;
 
 		public void ReturnToPool()
 		{
@@ -27,7 +28,11 @@ namespace ToolBox.Pools
 
 		public void ReturnFromPool()
 		{
-			OnBackFromPool?.Invoke();
+			if (wasSpawnedBefore)
+				OnBackFromPool?.Invoke();
+			else
+				wasSpawnedBefore = true;
+
 			isEnabled = true;
 		}
 
