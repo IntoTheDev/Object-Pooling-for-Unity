@@ -7,7 +7,7 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField, AssetsOnly, TabGroup("Data")] private Poolable prefab = null;
+		[SerializeField, AssetsOnly, TabGroup("Data"), AssetSelector] private Poolable prefab = null;
 		[SerializeField, TabGroup("Data")] private int startCount = 0;
 		[SerializeField, TabGroup("Data")] private bool isResizable = false;
 		[SerializeField, SceneObjectsOnly, TabGroup("Data")] private Transform holder = null;
@@ -97,6 +97,18 @@ namespace ToolBox.Pools
 
 			return entity;
 		}
+
+		public T GetEntity<T>() where T : Component =>
+			GetEntity().Component as T;
+
+		public T GetEntity<T>(Transform parent, bool spawnInWorldSpace) where T : Component =>
+			GetEntity(parent, spawnInWorldSpace).Component as T;
+
+		public T GetEntity<T>(Vector3 position, Quaternion rotation) where T : Component =>
+			GetEntity(position, rotation).Component as T;
+
+		public T GetEntity<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
+			GetEntity(position, rotation, parent, spawnInWorldSpace).Component as T;
 
 		public void ReturnEntity(Poolable entity)
 		{
