@@ -7,7 +7,7 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField, AssetsOnly, TabGroup("Data"), AssetSelector] private Poolable prefab = null;
+		[SerializeField, AssetsOnly, TabGroup("Data"), ValueDropdown(nameof(GetPoolables))] private Poolable prefab = null;
 		[SerializeField, TabGroup("Data")] private int startCount = 0;
 		[SerializeField, TabGroup("Data")] private bool isResizable = false;
 		[SerializeField, SceneObjectsOnly, TabGroup("Data")] private Transform holder = null;
@@ -24,6 +24,9 @@ namespace ToolBox.Pools
 			this.isResizable = isResizable;
 			this.holder = holder;
 		}
+
+		private IEnumerable<Poolable> GetPoolables() =>
+			Resources.FindObjectsOfTypeAll<Poolable>();
 
 		public void Fill()
 		{
