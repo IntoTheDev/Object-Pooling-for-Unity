@@ -7,21 +7,17 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField, AssetsOnly, TabGroup("Data"), ValueDropdown(nameof(GetPoolables))] private Poolable prefab = null;
-		[SerializeField, TabGroup("Data")] private int startCount = 0;
-		[SerializeField, TabGroup("Data")] private bool isResizable = false;
-		[SerializeField, SceneObjectsOnly, TabGroup("Data")] private Transform holder = null;
-
-		[SerializeField, ReadOnly, TabGroup("Debug")] private bool isFilled = false;
-		[SerializeField, ReadOnly, TabGroup("Debug")] private int currentCount = 0;
+		[SerializeField, AssetsOnly, ValueDropdown(nameof(GetPoolables))] private Poolable prefab = null;
+		[SerializeField] private int startCount = 0;
+		[SerializeField, SceneObjectsOnly] private Transform holder = null;
+		[SerializeField, ReadOnly] private int currentCount = 0;
 
 		private Queue<Poolable> entities = null;
 
-		public Pool(Poolable prefab, int startCount, bool isResizable, Transform holder)
+		public Pool(Poolable prefab, int startCount, Transform holder)
 		{
 			this.prefab = prefab;
 			this.startCount = startCount;
-			this.isResizable = isResizable;
 			this.holder = holder;
 		}
 
@@ -30,30 +26,28 @@ namespace ToolBox.Pools
 
 		public void Fill()
 		{
-			if (isFilled)
-				return;
-
 			entities = new Queue<Poolable>(startCount);
 			currentCount = startCount;
 
-			for (int i = 0; i < startCount; i++)
+			Poolable original = CreateObject(prefab);
+
+			for (int i = 0; i < startCount - 1; i++)
+				CreateObject(original);
+
+			Poolable CreateObject(Poolable prototype)
 			{
-				Poolable entity = Object.Instantiate(prefab, holder);
+				Poolable entity = Object.Instantiate(prototype, holder);
 				entity.SetPool(this);
 				entities.Enqueue(entity);
 				entity.gameObject.SetActive(false);
-			}
 
-			isFilled = true;
+				return entity;
+			}
 		}
 
 		public Poolable GetEntity()
 		{
 			Poolable entity = TakeEntity();
-
-			if (IsEmpty(entity))
-				return null;
-
 			entity.ReturnFromPool();
 
 			return entity;
@@ -62,9 +56,6 @@ namespace ToolBox.Pools
 		public Poolable GetEntity(Transform parent, bool spawnInWorldSpace)
 		{
 			Poolable entity = TakeEntity();
-
-			if (IsEmpty(entity))
-				return null;
 
 			entity.transform.SetParent(parent, spawnInWorldSpace);
 			entity.ReturnFromPool();
@@ -76,9 +67,6 @@ namespace ToolBox.Pools
 		{
 			Poolable entity = TakeEntity();
 
-			if (IsEmpty(entity))
-				return null;
-
 			entity.transform.SetPositionAndRotation(position, rotation);
 			entity.ReturnFromPool();
 
@@ -88,10 +76,6 @@ namespace ToolBox.Pools
 		public Poolable GetEntity(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
 		{
 			Poolable entity = TakeEntity();
-
-			if (IsEmpty(entity))
-				return null;
-
 			Transform entityTransform = entity.transform;
 
 			entityTransform.SetParent(parent, spawnInWorldSpace);
@@ -127,23 +111,13 @@ namespace ToolBox.Pools
 
 		private Poolable TakeEntity()
 		{
-			if (!isFilled)
-				Fill();
-
 			Poolable entity;
 
 			if (currentCount == 0)
 			{
-				if (isResizable)
-				{
-					entity = Object.Instantiate(prefab, holder);
-					entity.SetPool(this);
-					return entity;
-				}
-				else
-				{
-					return null;
-				}
+				entity = Object.Instantiate(prefab, holder);
+				entity.SetPool(this);
+				return entity;
 			}
 
 			entity = entities.Dequeue();
@@ -160,8 +134,5 @@ namespace ToolBox.Pools
 
 			return entity;
 		}
-
-		private bool IsEmpty(Poolable entity) =>
-			!isResizable && entity == null;
 	}
 }
