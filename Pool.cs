@@ -1,24 +1,26 @@
 ﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using ToolBox.Modules;
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
-	[System.Serializable]
 	public class Pool
 	{
 		[SerializeField, AssetsOnly, ValueDropdown(nameof(GetPoolables))] private Poolable prefab = null;
 		[SerializeField] private int startCount = 0;
 		[SerializeField, SceneObjectsOnly] private Transform holder = null;
-		[SerializeField, ReadOnly] private int currentCount = 0;
+		[SerializeField] private ModulesContainer<GameObject> objectInitializator = null; 
 
+		private int currentCount = 0;
 		private Queue<Poolable> entities = null;
 
-		public Pool(Poolable prefab, int startCount, Transform holder)
+		public Pool(Poolable prefab, int startCount, Transform holder, ModulesContainer<GameObject> objectInitializator)
 		{
 			this.prefab = prefab;
 			this.startCount = startCount;
 			this.holder = holder;
+			this.objectInitializator = objectInitializator;
 		}
 
 		private IEnumerable<Poolable> GetPoolables() =>
@@ -29,19 +31,22 @@ namespace ToolBox.Pools
 			entities = new Queue<Poolable>(startCount);
 			currentCount = startCount;
 
-			Poolable original = CreateObject(prefab);
+			Poolable original = Object.Instantiate(prefab, holder);
+			objectInitializator.Process(original.gameObject);
+
+			AddToPool(original);
 
 			for (int i = 0; i < startCount - 1; i++)
-				CreateObject(original);
-
-			Poolable CreateObject(Poolable prototype)
 			{
-				Poolable entity = Object.Instantiate(prototype, holder);
-				entity.SetPool(this);
-				entities.Enqueue(entity);
-				entity.gameObject.SetActive(false);
+				Poolable entity = Object.Instantiate(original, holder);
+				AddToPool(entity);
+			}
 
-				return entity;
+			void AddToPool(Poolable newEntity)
+			{
+				newEntity.SetPool(this);
+				entities.Enqueue(newEntity);
+				newEntity.gameObject.SetActive(false);
 			}
 		}
 
@@ -117,6 +122,7 @@ namespace ToolBox.Pools
 			{
 				entity = Object.Instantiate(prefab, holder);
 				entity.SetPool(this);
+
 				return entity;
 			}
 

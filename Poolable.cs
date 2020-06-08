@@ -9,8 +9,8 @@ namespace ToolBox.Pools
 	public class Poolable : SerializedMonoBehaviour, IModule
 	{
 		[SerializeField] private Component component = null;
-		[OdinSerialize] private ModulesContainer onBackToPool = default;
-		[OdinSerialize] private ModulesContainer onBackFromPool = default;
+		[SerializeField] private ModulesContainer onBackToPool = default;
+		[SerializeField] private ModulesContainer onBackFromPool = default;
 
 		public Pool Pool { get; private set; } = null;
 		public Component Component => component;
