@@ -32,7 +32,12 @@ namespace ToolBox.Pools
 			currentCount = startCount;
 
 			Poolable original = Object.Instantiate(prefab, holder);
-			objectInitializator.Process(original.gameObject);
+			
+			if (objectInitializator != null)
+			{
+				objectInitializator.Initialize();
+				objectInitializator.Dispatch(original.gameObject);
+			}
 
 			AddToPool(original);
 
