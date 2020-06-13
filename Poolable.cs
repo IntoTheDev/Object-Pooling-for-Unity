@@ -1,16 +1,14 @@
-﻿using Sirenix.OdinInspector;
-using Sirenix.Serialization;
-using ToolBox.Modules;
+﻿using ToolBox.Reactors;
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
 	[DisallowMultipleComponent]
-	public class Poolable : SerializedMonoBehaviour, IModule
+	public class Poolable : MonoBehaviour, IReactor
 	{
 		[SerializeField] private Component component = null;
-		[SerializeField] private ModulesContainer onBackToPool = default;
-		[SerializeField] private ModulesContainer onBackFromPool = default;
+		[SerializeField] private Reactor onBackToPool = default;
+		[SerializeField] private Reactor onBackFromPool = default;
 
 		public Pool Pool { get; private set; } = null;
 		public Component Component => component;
@@ -23,7 +21,7 @@ namespace ToolBox.Pools
 			if (!isEnabled)
 				return;
 
-			onBackToPool.Process();
+			onBackToPool.SendReaction();
 
 			Pool.ReturnEntity(this);
 			isEnabled = false;
@@ -31,7 +29,7 @@ namespace ToolBox.Pools
 
 		public void ReturnFromPool()
 		{
-			onBackFromPool.Process();
+			onBackFromPool.SendReaction();
 			isEnabled = true;
 		}
 
@@ -44,7 +42,7 @@ namespace ToolBox.Pools
 			}
 		}
 
-		public void Process() =>
+		public void HandleReaction() =>
 			ReturnToPool();
 	}
 }

@@ -1,21 +1,22 @@
 ﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
-using ToolBox.Modules;
+using ToolBox.Reactors;
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
+	[System.Serializable]
 	public class Pool
 	{
 		[SerializeField, AssetsOnly, ValueDropdown(nameof(GetPoolables))] private Poolable prefab = null;
 		[SerializeField] private int startCount = 0;
 		[SerializeField, SceneObjectsOnly] private Transform holder = null;
-		[SerializeField] private ModulesContainer<GameObject> objectInitializator = null; 
+		[SerializeField] private GameObjectReactor objectInitializator = null; 
 
 		private int currentCount = 0;
 		private Queue<Poolable> entities = null;
 
-		public Pool(Poolable prefab, int startCount, Transform holder, ModulesContainer<GameObject> objectInitializator)
+		public Pool(Poolable prefab, int startCount, Transform holder, GameObjectReactor objectInitializator)
 		{
 			this.prefab = prefab;
 			this.startCount = startCount;
@@ -32,12 +33,9 @@ namespace ToolBox.Pools
 			currentCount = startCount;
 
 			Poolable original = Object.Instantiate(prefab, holder);
-			
+
 			if (objectInitializator != null)
-			{
-				objectInitializator.Initialize();
-				objectInitializator.Dispatch(original.gameObject);
-			}
+				objectInitializator.SendReaction(original.gameObject);
 
 			AddToPool(original);
 
