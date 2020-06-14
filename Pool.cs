@@ -8,7 +8,7 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField, AssetsOnly, ValueDropdown(nameof(GetPoolables))] private Poolable _prefab = null;
+		[SerializeField, AssetList, AssetsOnly] private Poolable _prefab = null;
 		[SerializeField] private int _startCount = 0;
 		[SerializeField, SceneObjectsOnly] private Transform _holder = null;
 		[SerializeField] private GameObjectReactor _objectInitializator = null; 
