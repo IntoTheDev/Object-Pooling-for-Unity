@@ -24,9 +24,6 @@ namespace ToolBox.Pools
 			_objectInitializator = objectInitializator;
 		}
 
-		private IEnumerable<Poolable> GetPoolables() =>
-			Resources.FindObjectsOfTypeAll<Poolable>();
-
 		public void Fill()
 		{
 			_entities = new Queue<Poolable>(_startCount);
