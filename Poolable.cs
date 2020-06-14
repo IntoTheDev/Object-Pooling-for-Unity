@@ -6,39 +6,39 @@ namespace ToolBox.Pools
 	[DisallowMultipleComponent]
 	public class Poolable : MonoBehaviour, IReactor
 	{
-		[SerializeField] private Component component = null;
-		[SerializeField] private Reactor onBackToPool = default;
-		[SerializeField] private Reactor onBackFromPool = default;
+		[SerializeField] private Component _component = null;
+		[SerializeField] private Reactor _onBackToPool = null;
+		[SerializeField] private Reactor _onBackFromPool = null;
 
 		public Pool Pool { get; private set; } = null;
-		public Component Component => component;
+		public Component Component => _component;
 
-		private bool isPooled = false;
-		private bool isEnabled = true;
+		private bool _isPooled = false;
+		private bool _isEnabled = true;
 
 		public void ReturnToPool()
 		{
-			if (!isEnabled)
+			if (!_isEnabled)
 				return;
 
-			onBackToPool.SendReaction();
+			_onBackToPool.SendReaction();
 
 			Pool.ReturnEntity(this);
-			isEnabled = false;
+			_isEnabled = false;
 		}
 
 		public void ReturnFromPool()
 		{
-			onBackFromPool.SendReaction();
-			isEnabled = true;
+			_onBackFromPool.SendReaction();
+			_isEnabled = true;
 		}
 
 		public void SetPool(Pool pool)
 		{
-			if (!isPooled)
+			if (!_isPooled)
 			{
 				Pool = pool;
-				isPooled = true;
+				_isPooled = true;
 			}
 		}
 

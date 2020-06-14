@@ -8,20 +8,20 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField, AssetsOnly, ValueDropdown(nameof(GetPoolables))] private Poolable prefab = null;
-		[SerializeField] private int startCount = 0;
-		[SerializeField, SceneObjectsOnly] private Transform holder = null;
-		[SerializeField] private GameObjectReactor objectInitializator = null; 
+		[SerializeField, AssetsOnly, ValueDropdown(nameof(GetPoolables))] private Poolable _prefab = null;
+		[SerializeField] private int _startCount = 0;
+		[SerializeField, SceneObjectsOnly] private Transform _holder = null;
+		[SerializeField] private GameObjectReactor _objectInitializator = null; 
 
-		private int currentCount = 0;
-		private Queue<Poolable> entities = null;
+		private int _currentCount = 0;
+		private Queue<Poolable> _entities = null;
 
 		public Pool(Poolable prefab, int startCount, Transform holder, GameObjectReactor objectInitializator)
 		{
-			this.prefab = prefab;
-			this.startCount = startCount;
-			this.holder = holder;
-			this.objectInitializator = objectInitializator;
+			_prefab = prefab;
+			_startCount = startCount;
+			_holder = holder;
+			_objectInitializator = objectInitializator;
 		}
 
 		private IEnumerable<Poolable> GetPoolables() =>
@@ -29,26 +29,26 @@ namespace ToolBox.Pools
 
 		public void Fill()
 		{
-			entities = new Queue<Poolable>(startCount);
-			currentCount = startCount;
+			_entities = new Queue<Poolable>(_startCount);
+			_currentCount = _startCount;
 
-			Poolable original = Object.Instantiate(prefab, holder);
+			Poolable original = Object.Instantiate(_prefab, _holder);
 
-			if (objectInitializator != null)
-				objectInitializator.SendReaction(original.gameObject);
+			if (_objectInitializator != null)
+				_objectInitializator.SendReaction(original.gameObject);
 
 			AddToPool(original);
 
-			for (int i = 0; i < startCount - 1; i++)
+			for (int i = 0; i < _startCount - 1; i++)
 			{
-				Poolable entity = Object.Instantiate(original, holder);
+				Poolable entity = Object.Instantiate(original, _holder);
 				AddToPool(entity);
 			}
 
 			void AddToPool(Poolable newEntity)
 			{
 				newEntity.SetPool(this);
-				entities.Enqueue(newEntity);
+				_entities.Enqueue(newEntity);
 				newEntity.gameObject.SetActive(false);
 			}
 		}
@@ -110,10 +110,10 @@ namespace ToolBox.Pools
 			if (entity.Pool != this)
 				return;
 
-			entities.Enqueue(entity);
-			currentCount++;
+			_entities.Enqueue(entity);
+			_currentCount++;
 
-			entity.transform.SetParent(holder, false);
+			entity.transform.SetParent(_holder, false);
 			entity.gameObject.SetActive(false);
 		}
 
@@ -121,25 +121,25 @@ namespace ToolBox.Pools
 		{
 			Poolable entity;
 
-			if (currentCount == 0)
+			if (_currentCount == 0)
 			{
-				entity = Object.Instantiate(prefab, holder);
+				entity = Object.Instantiate(_prefab, _holder);
 				entity.SetPool(this);
 
 				return entity;
 			}
 
-			entity = entities.Dequeue();
+			entity = _entities.Dequeue();
 
 			if (entity == null)
 			{
-				entity = Object.Instantiate(prefab, holder);
+				entity = Object.Instantiate(_prefab, _holder);
 				entity.SetPool(this);
-				currentCount++;
+				_currentCount++;
 			}
 
 			entity.gameObject.SetActive(true);
-			currentCount--;
+			_currentCount--;
 
 			return entity;
 		}
