@@ -8,24 +8,19 @@ namespace ToolBox.Pools
 	[System.Serializable]
 	public class Pool
 	{
-		[SerializeField, AssetsOnly, ValueDropdown(nameof(GetPoolables))] private Poolable _prefab = null;
+		[SerializeField, AssetList, AssetsOnly] private Poolable _prefab = null;
 		[SerializeField] private int _startCount = 0;
 		[SerializeField, SceneObjectsOnly] private Transform _holder = null;
-		[SerializeField] private GameObjectReactor _objectInitializator = null; 
 
 		private int _currentCount = 0;
 		private Queue<Poolable> _entities = null;
 
-		public Pool(Poolable prefab, int startCount, Transform holder, GameObjectReactor objectInitializator)
+		public Pool(Poolable prefab, int startCount, Transform holder)
 		{
 			_prefab = prefab;
 			_startCount = startCount;
 			_holder = holder;
-			_objectInitializator = objectInitializator;
 		}
-
-		private IEnumerable<Poolable> GetPoolables() =>
-			Resources.FindObjectsOfTypeAll<Poolable>();
 
 		public void Fill()
 		{
@@ -33,10 +28,6 @@ namespace ToolBox.Pools
 			_currentCount = _startCount;
 
 			Poolable original = Object.Instantiate(_prefab, _holder);
-
-			if (_objectInitializator != null)
-				_objectInitializator.SendReaction(original.gameObject);
-
 			AddToPool(original);
 
 			for (int i = 0; i < _startCount - 1; i++)
