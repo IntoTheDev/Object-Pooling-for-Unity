@@ -16,6 +16,12 @@ namespace ToolBox.Pools
 		private bool _isPooled = false;
 		private bool _isEnabled = true;
 
+		private void Awake()
+		{
+			_onBackToPool.Setup();
+			_onBackFromPool.Setup();
+		}
+
 		public void ReturnToPool()
 		{
 			if (!_isEnabled)
