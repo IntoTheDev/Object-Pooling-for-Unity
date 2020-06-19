@@ -22,6 +22,7 @@ namespace ToolBox.Pools
 			_onBackFromPool.Setup();
 		}
 
+		[Button]
 		public void ReturnToPool()
 		{
 			if (!_isEnabled)
