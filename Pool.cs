@@ -1,11 +1,11 @@
 ﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
-using ToolBox.Reactors;
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
-	[System.Serializable]
+	[Serializable]
 	public class Pool
 	{
 		[SerializeField, AssetList, AssetsOnly] private Poolable _prefab = null;
@@ -27,12 +27,9 @@ namespace ToolBox.Pools
 			_entities = new Queue<Poolable>(_startCount);
 			_currentCount = _startCount;
 
-			Poolable original = Object.Instantiate(_prefab, _holder);
-			AddToPool(original);
-
-			for (int i = 0; i < _startCount - 1; i++)
+			for (int i = 0; i < _startCount; i++)
 			{
-				Poolable entity = Object.Instantiate(original, _holder);
+				Poolable entity = UnityEngine.Object.Instantiate(_prefab, _holder);
 				AddToPool(entity);
 			}
 
@@ -84,17 +81,17 @@ namespace ToolBox.Pools
 			return entity;
 		}
 
-		public T GetEntity<T>() where T : Component =>
-			GetEntity().Component as T;
+		public T GetEntity<T>() =>
+			GetEntity().GetComponent<T>();
 
-		public T GetEntity<T>(Transform parent, bool spawnInWorldSpace) where T : Component =>
-			GetEntity(parent, spawnInWorldSpace).Component as T;
+		public T GetEntity<T>(Transform parent, bool spawnInWorldSpace) =>
+			GetEntity(parent, spawnInWorldSpace).GetComponent<T>();
 
-		public T GetEntity<T>(Vector3 position, Quaternion rotation) where T : Component =>
-			GetEntity(position, rotation).Component as T;
+		public T GetEntity<T>(Vector3 position, Quaternion rotation) =>
+			GetEntity(position, rotation).GetComponent<T>();
 
-		public T GetEntity<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
-			GetEntity(position, rotation, parent, spawnInWorldSpace).Component as T;
+		public T GetEntity<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) =>
+			GetEntity(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
 		public void ReturnEntity(Poolable entity)
 		{
@@ -114,7 +111,7 @@ namespace ToolBox.Pools
 
 			if (_currentCount == 0)
 			{
-				entity = Object.Instantiate(_prefab, _holder);
+				entity = UnityEngine.Object.Instantiate(_prefab, _holder);
 				entity.SetPool(this);
 
 				return entity;
@@ -124,7 +121,7 @@ namespace ToolBox.Pools
 
 			if (entity == null)
 			{
-				entity = Object.Instantiate(_prefab, _holder);
+				entity = UnityEngine.Object.Instantiate(_prefab, _holder);
 				entity.SetPool(this);
 				_currentCount++;
 			}
