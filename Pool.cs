@@ -1,27 +1,19 @@
 ﻿using Sirenix.OdinInspector;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
-	[Serializable]
-	public class Pool
-	{
-		[SerializeField, AssetList, AssetsOnly] private Poolable _prefab = null;
+	[CreateAssetMenu(menuName = "ToolBox/Pool"), Required, AssetSelector]
+    public sealed class Pool : ScriptableObject
+    {
+		[SerializeField, AssetList, AssetsOnly, Required] private Poolable _prefab = null;
 		[SerializeField] private int _startCount = 0;
-		[SerializeField, SceneObjectsOnly] private Transform _holder = null;
 
 		private int _currentCount = 0;
 		private Queue<Poolable> _entities = null;
 
-		public Pool(Poolable prefab, int startCount, Transform holder)
-		{
-			_prefab = prefab;
-			_startCount = startCount;
-			_holder = holder;
-		}
-
+		[Button]
 		public void Fill()
 		{
 			_entities = new Queue<Poolable>(_startCount);
@@ -29,15 +21,10 @@ namespace ToolBox.Pools
 
 			for (int i = 0; i < _startCount; i++)
 			{
-				Poolable entity = UnityEngine.Object.Instantiate(_prefab, _holder);
-				AddToPool(entity);
-			}
-
-			void AddToPool(Poolable newEntity)
-			{
-				newEntity.SetPool(this);
-				_entities.Enqueue(newEntity);
-				newEntity.gameObject.SetActive(false);
+				Poolable entity = Instantiate(_prefab);
+				entity.SetPool(this);
+				_entities.Enqueue(entity);
+				entity.gameObject.SetActive(false);
 			}
 		}
 
@@ -101,7 +88,7 @@ namespace ToolBox.Pools
 			_entities.Enqueue(entity);
 			_currentCount++;
 
-			entity.transform.SetParent(_holder, false);
+			entity.transform.SetParent(null, false);
 			entity.gameObject.SetActive(false);
 		}
 
@@ -111,7 +98,7 @@ namespace ToolBox.Pools
 
 			if (_currentCount == 0)
 			{
-				entity = UnityEngine.Object.Instantiate(_prefab, _holder);
+				entity = Instantiate(_prefab);
 				entity.SetPool(this);
 
 				return entity;
@@ -121,7 +108,7 @@ namespace ToolBox.Pools
 
 			if (entity == null)
 			{
-				entity = UnityEngine.Object.Instantiate(_prefab, _holder);
+				entity = Instantiate(_prefab);
 				entity.SetPool(this);
 				_currentCount++;
 			}

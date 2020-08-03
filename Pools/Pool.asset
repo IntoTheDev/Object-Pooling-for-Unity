@@ -10,10 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b1b86f0f7a2abb3438596be3b0b6018e, type: 3}
-  m_Name: TestPool
+  m_Name: BowTower
   m_EditorClassIdentifier: 
-  _pool:
-    _prefab: {fileID: -5867640059013084840, guid: 58be6d132003ec14087e25cfa3ceb8fb,
-      type: 3}
-    _startCount: 5
-    _holder: {fileID: 0}
+  _prefab: {fileID: 8418102157395063907, guid: 245a074ef02e7bc49be09dd22bda9aeb, type: 3}
+  _startCount: 25

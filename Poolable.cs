@@ -9,8 +9,6 @@ namespace ToolBox.Pools
 	[DisallowMultipleComponent]
 	public class Poolable : MonoBehaviour, IReactor
 	{
-		[SerializeField, TabGroup("Global Pool")] private GlobalPool _globalPool = null;
-
 		[SerializeField, TabGroup("Callbacks")] private Reactor _onBackToPool = null;
 		[SerializeField, TabGroup("Callbacks")] private Reactor _onBackFromPool = null;
 
@@ -27,12 +25,6 @@ namespace ToolBox.Pools
 
 		private void Awake()
 		{
-			if (_globalPool != null)
-			{
-				Pool = _globalPool.Pool;
-				_isPooled = true;
-			}
-
 			_onBackToPool.Setup();
 			_onBackFromPool.Setup();
 
@@ -55,13 +47,13 @@ namespace ToolBox.Pools
 
 			Pool.ReturnEntity(this);
 			_isEnabled = false;
-
-			for (int i = 0; i < _poolables.Length; i++)
-				_poolables[i].Reset();
 		}
 
 		public void ReturnFromPool()
 		{
+			for (int i = 0; i < _poolables.Length; i++)
+				_poolables[i].Reset();
+
 			_onBackFromPool.SendReaction();
 			_isEnabled = true;
 		}
@@ -86,6 +78,6 @@ namespace ToolBox.Pools
 		}
 
 		private IEnumerable<IPoolable> GetPoolables() =>
-			GetComponentsInChildren<IPoolable>();
+			GetComponentsInChildren<IPoolable>(true);
 	}
 }
