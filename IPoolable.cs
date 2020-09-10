@@ -2,6 +2,7 @@
 {
 	public interface IPoolable
 	{
-		void Reset();
+		void OnSpawn();
+		void OnDespawn();
 	}
 }

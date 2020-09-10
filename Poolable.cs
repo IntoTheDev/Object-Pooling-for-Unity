@@ -1,49 +1,39 @@
-﻿using Sirenix.OdinInspector;
-using System.Collections.Generic;
-using System.Linq;
-using ToolBox.Reactors;
+﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
 	[DisallowMultipleComponent]
-	public class Poolable : MonoBehaviour, IReactor
+	public class Poolable : MonoBehaviour
 	{
-		[SerializeField, TabGroup("Callbacks")] private Reactor _onBackToPool = null;
-		[SerializeField, TabGroup("Callbacks")] private Reactor _onBackFromPool = null;
-
-		[SerializeField, TabGroup("Poolables"), OnValueChanged(nameof(OnPoolablesChange)), ValueDropdown(nameof(GetPoolables)), HideInPlayMode] 
-		private MonoBehaviour[] _possiblePoolables = null;
-
-		[ShowInInspector, HideInEditorMode, TabGroup("Poolables"), ReadOnly]
-		private IPoolable[] _poolables = null;
+		[SerializeField] private Pool _pool = null;
 
 		public Pool Pool { get; private set; } = null;
 
+		private IPoolable[] _poolables = null;
 		private bool _isPooled = false;
 		private bool _isEnabled = true;
 
 		private void Awake()
 		{
-			_onBackToPool.Setup();
-			_onBackFromPool.Setup();
+			if (_pool != null)
+				SetPool(_pool);
 
-			int count = _possiblePoolables.Length;
-			_poolables = new IPoolable[count];
-
-			for (int i = 0; i < count; i++)
-				_poolables[i] = _possiblePoolables[i] as IPoolable;
-
-			_possiblePoolables = null;
+			_poolables = GetComponentsInChildren<IPoolable>(true);
 		}
 
+#if ODIN_INSPECTOR
 		[Button]
+#endif
 		public void ReturnToPool()
 		{
 			if (!_isEnabled)
 				return;
 
-			_onBackToPool.SendReaction();
+			for (int i = 0; i < _poolables.Length; i++)
+				_poolables[i].OnDespawn();
 
 			Pool.ReturnEntity(this);
 			_isEnabled = false;
@@ -52,9 +42,8 @@ namespace ToolBox.Pools
 		public void ReturnFromPool()
 		{
 			for (int i = 0; i < _poolables.Length; i++)
-				_poolables[i].Reset();
+				_poolables[i].OnSpawn();
 
-			_onBackFromPool.SendReaction();
 			_isEnabled = true;
 		}
 
@@ -66,18 +55,5 @@ namespace ToolBox.Pools
 				_isPooled = true;
 			}
 		}
-
-		public void HandleReaction() =>
-			ReturnToPool();
-
-		private void OnPoolablesChange()
-		{
-			IEnumerable<MonoBehaviour> poolables = _possiblePoolables.Where(x => x is IPoolable);
-			poolables = poolables.GroupBy(x => x.GetHashCode()).Select(y => y.First());
-			_possiblePoolables = poolables.ToArray();
-		}
-
-		private IEnumerable<IPoolable> GetPoolables() =>
-			GetComponentsInChildren<IPoolable>(true);
 	}
 }

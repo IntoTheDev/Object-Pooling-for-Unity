@@ -1,19 +1,32 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
-	[CreateAssetMenu(menuName = "ToolBox/Pool"), Required, AssetSelector]
+#if ODIN_INSPECTOR
+	[Required, AssetSelector]
+#endif
+	[CreateAssetMenu(menuName = "ToolBox/Pool")]
     public sealed class Pool : ScriptableObject
     {
-		[SerializeField, AssetList, AssetsOnly, Required] private Poolable _prefab = null;
+#if ODIN_INSPECTOR
+		[Required, ValueDropdown(nameof(GetPoolables))]
+#endif
+		[SerializeField] private Poolable _prefab = null;
 		[SerializeField] private int _startCount = 0;
 
 		private int _currentCount = 0;
 		private Queue<Poolable> _entities = null;
 
-		[Button]
+		private void OnValidate()
+		{
+			if (_prefab != null)
+				_prefab.SetPool(this);
+		}
+
 		public void Fill()
 		{
 			_entities = new Queue<Poolable>(_startCount);
@@ -68,16 +81,16 @@ namespace ToolBox.Pools
 			return entity;
 		}
 
-		public T GetEntity<T>() =>
+		public T GetEntity<T>() where T : Component =>
 			GetEntity().GetComponent<T>();
 
-		public T GetEntity<T>(Transform parent, bool spawnInWorldSpace) =>
+		public T GetEntity<T>(Transform parent, bool spawnInWorldSpace) where T : Component =>
 			GetEntity(parent, spawnInWorldSpace).GetComponent<T>();
 
-		public T GetEntity<T>(Vector3 position, Quaternion rotation) =>
+		public T GetEntity<T>(Vector3 position, Quaternion rotation) where T : Component =>
 			GetEntity(position, rotation).GetComponent<T>();
 
-		public T GetEntity<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) =>
+		public T GetEntity<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
 			GetEntity(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
 		public void ReturnEntity(Poolable entity)
@@ -118,5 +131,8 @@ namespace ToolBox.Pools
 
 			return entity;
 		}
+
+		private IEnumerable<Poolable> GetPoolables() =>
+			Resources.FindObjectsOfTypeAll<Poolable>();
 	}
 }
