@@ -1,44 +1,67 @@
-﻿#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ToolBox.Pools
 {
-#if ODIN_INSPECTOR
-	[Required, AssetSelector]
-#endif
-	[CreateAssetMenu(menuName = "ToolBox/Pool")]
-    public sealed class Pool : ScriptableObject
-    {
-#if ODIN_INSPECTOR
-		[Required, ValueDropdown(nameof(GetPoolables))]
-#endif
-		[SerializeField] private Poolable _prefab = null;
-		[SerializeField] private int _startCount = 0;
-
+	public sealed class Pool
+	{
+		private Poolable _prefab = null;
 		private int _currentCount = 0;
 		private Queue<Poolable> _entities = null;
 
-		private void OnValidate()
+		private static Dictionary<int, Pool> _pools = new Dictionary<int, Pool>();
+
+		public Pool(Poolable prefab, int count)
 		{
-			if (_prefab != null)
-				_prefab.SetPool(this);
+			_prefab = prefab;
+			_currentCount = count;
+			_entities = new Queue<Poolable>(count);
+			_pools.Add(prefab.gameObject.GetHashCode(), this);
+
+			Populate(count);
 		}
 
-		public void Fill()
+		/// <summary>
+		/// Prefab must contain Poolable component
+		/// </summary>
+		public Pool(GameObject prefab, int count)
 		{
-			_entities = new Queue<Poolable>(_startCount);
-			_currentCount = _startCount;
+			_prefab = prefab.GetComponent<Poolable>();
 
-			for (int i = 0; i < _startCount; i++)
+			if (_prefab == null)
 			{
-				Poolable entity = Instantiate(_prefab);
+				_prefab = Object.Instantiate(prefab).AddComponent<Poolable>();
+				_prefab.gameObject.SetActive(false);
+			}
+
+			_currentCount = count;
+			_entities = new Queue<Poolable>(count);
+			_pools.Add(prefab.GetHashCode(), this);
+
+			Populate(count);
+		}
+
+		public static Pool Get(GameObject prefab)
+		{
+			var hasPool = _pools.TryGetValue(prefab.GetHashCode(), out var pool);
+
+			if (!hasPool)
+				pool = new Pool(prefab, 0);
+
+			return pool;
+		}
+
+		public void Populate(int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				Poolable entity = Object.Instantiate(_prefab);
 				entity.SetPool(this);
 				_entities.Enqueue(entity);
 				entity.gameObject.SetActive(false);
 			}
+
+			_currentCount += count;
 		}
 
 		public Poolable GetEntity()
@@ -111,7 +134,7 @@ namespace ToolBox.Pools
 
 			if (_currentCount == 0)
 			{
-				entity = Instantiate(_prefab);
+				entity = Object.Instantiate(_prefab);
 				entity.SetPool(this);
 
 				return entity;
@@ -121,7 +144,7 @@ namespace ToolBox.Pools
 
 			if (entity == null)
 			{
-				entity = Instantiate(_prefab);
+				entity = Object.Instantiate(_prefab);
 				entity.SetPool(this);
 				_currentCount++;
 			}
@@ -131,8 +154,5 @@ namespace ToolBox.Pools
 
 			return entity;
 		}
-
-		private IEnumerable<Poolable> GetPoolables() =>
-			Resources.FindObjectsOfTypeAll<Poolable>();
 	}
 }

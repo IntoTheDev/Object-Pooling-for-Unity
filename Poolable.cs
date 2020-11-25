@@ -8,21 +8,14 @@ namespace ToolBox.Pools
 	[DisallowMultipleComponent]
 	public class Poolable : MonoBehaviour
 	{
-		[SerializeField] private Pool _pool = null;
-
 		public Pool Pool { get; private set; } = null;
 
 		private IPoolable[] _poolables = null;
 		private bool _isPooled = false;
 		private bool _isEnabled = true;
 
-		private void Awake()
-		{
-			if (_pool != null)
-				SetPool(_pool);
-
+		private void Awake() =>
 			_poolables = GetComponentsInChildren<IPoolable>(true);
-		}
 
 #if ODIN_INSPECTOR
 		[Button]
