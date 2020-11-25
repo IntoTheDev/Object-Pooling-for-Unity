@@ -8,7 +8,7 @@ Object Pooling for Unity
 - Callbacks OnSpawn & OnDespawn for resseting after object being used
 
 ## Usage
-How to populate pool:
+### How to populate pool:
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
@@ -29,7 +29,7 @@ Also, you can just put PoolInstaller component on any object on Scene and select
 
 ![](https://i.imgur.com/gnyZ0RQ.png)
 
-How to spawn object from pool:
+### How to spawn object from pool:
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
@@ -50,7 +50,7 @@ public class Spawner : MonoBehaviour
 
 ```
 
-How to return object to pool:
+### How to return object to pool:
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
@@ -70,7 +70,7 @@ public class Spawner : MonoBehaviour
 }
 ```
 
-How to use callbacks:
+### How to use callbacks:
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
