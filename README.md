@@ -26,6 +26,7 @@ public class Spawner : MonoBehaviour
 ```
 
 Also, you can just put PoolInstaller component on any object on Scene and select which objects you want to prepopulate
+
 ![](https://i.imgur.com/gnyZ0RQ.png)
 
 How to spawn object from pool:
