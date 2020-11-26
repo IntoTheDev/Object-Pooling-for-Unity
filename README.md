@@ -65,6 +65,7 @@ public class Spawner : MonoBehaviour
 		var instance = _prefab.Spawn(transform.position, transform.rotation);
 
 		// Use this only with Instances of Prefab
+		// Only Instances which was created via Populate can be Despawned
 		instance.Despawn();
 	}
 }
