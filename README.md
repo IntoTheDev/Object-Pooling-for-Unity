@@ -2,7 +2,7 @@
 Object Pooling for Unity
 
 ## Features
-- Faster in terms of performance than Instantiate/Destroy
+- Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
 - Easy to use
 - Easy to integrate with already written spawn systems
 - Callbacks OnSpawn & OnDespawn for resseting after object being used
@@ -93,3 +93,73 @@ public class Health : MonoBehaviour, IPoolable
 	public void OnDespawn() { }
 }
 ```
+
+### Peformance test:
+Creating and destroying 1000 objects.
+
+#### Instantiate/Destroy:
+
+```csharp
+using Sirenix.OdinInspector;
+using System.Diagnostics;
+using UnityEngine;
+
+public class Tester : MonoBehaviour
+{
+	[SerializeField] private GameObject _object = null;
+
+	[Button]
+	private void Test()
+	{
+		Stopwatch stopwatch = new Stopwatch();
+		stopwatch.Start();
+
+		for (int i = 0; i < 1000; i++)
+		{
+			var instance = Instantiate(_object);
+			Destroy(instance);
+		}
+
+		stopwatch.Stop();
+		print($"Milliseconds: {stopwatch.ElapsedMilliseconds}");
+	}
+}
+```
+##### Result: [16:26:15] Milliseconds: 6
+
+#### Spawn/Despawn:
+
+```csharp
+using Sirenix.OdinInspector;
+using System.Diagnostics;
+using ToolBox.Pools;
+using UnityEngine;
+
+public class Tester : MonoBehaviour
+{
+	[SerializeField] private GameObject _object = null;
+
+	private void Awake()
+	{
+		_object.Populate(1000);
+	}
+
+	[Button]
+	private void Test()
+	{
+		Stopwatch stopwatch = new Stopwatch();
+		stopwatch.Start();
+
+		for (int i = 0; i < 1000; i++)
+		{
+			var instance = _object.Spawn();
+			instance.Despawn();
+		}
+
+		stopwatch.Stop();
+		print($"Milliseconds: {stopwatch.ElapsedMilliseconds}");
+	}
+}
+
+```
+##### Result: [16:29:36] Milliseconds: 2
