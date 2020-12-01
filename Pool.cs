@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
 namespace ToolBox.Pools
 {
@@ -21,9 +22,6 @@ namespace ToolBox.Pools
 			Populate(count);
 		}
 
-		/// <summary>
-		/// Prefab must contain Poolable component
-		/// </summary>
 		public Pool(GameObject prefab, int count)
 		{
 			_prefab = prefab.GetComponent<Poolable>();
@@ -53,6 +51,9 @@ namespace ToolBox.Pools
 
 		public void Populate(int count)
 		{
+			if (count <= 0)
+				return;
+
 			for (int i = 0; i < count; i++)
 			{
 				Poolable entity = Object.Instantiate(_prefab);
@@ -66,7 +67,7 @@ namespace ToolBox.Pools
 
 		public Poolable GetEntity()
 		{
-			Poolable entity = TakeEntity();
+			Poolable entity = GetEntityFromPool();
 			entity.ReturnFromPool();
 
 			return entity;
@@ -74,7 +75,7 @@ namespace ToolBox.Pools
 
 		public Poolable GetEntity(Transform parent, bool spawnInWorldSpace)
 		{
-			Poolable entity = TakeEntity();
+			Poolable entity = GetEntityFromPool();
 
 			entity.transform.SetParent(parent, spawnInWorldSpace);
 			entity.ReturnFromPool();
@@ -84,7 +85,7 @@ namespace ToolBox.Pools
 
 		public Poolable GetEntity(Vector3 position, Quaternion rotation)
 		{
-			Poolable entity = TakeEntity();
+			Poolable entity = GetEntityFromPool();
 
 			entity.transform.SetPositionAndRotation(position, rotation);
 			entity.ReturnFromPool();
@@ -94,7 +95,7 @@ namespace ToolBox.Pools
 
 		public Poolable GetEntity(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
 		{
-			Poolable entity = TakeEntity();
+			Poolable entity = GetEntityFromPool();
 			Transform entityTransform = entity.transform;
 
 			entityTransform.SetParent(parent, spawnInWorldSpace);
@@ -128,7 +129,7 @@ namespace ToolBox.Pools
 			entity.gameObject.SetActive(false);
 		}
 
-		private Poolable TakeEntity()
+		private Poolable GetEntityFromPool()
 		{
 			Poolable entity;
 
@@ -136,6 +137,7 @@ namespace ToolBox.Pools
 			{
 				entity = Object.Instantiate(_prefab);
 				entity.SetPool(this);
+				entity.gameObject.SetActive(true);
 
 				return entity;
 			}
