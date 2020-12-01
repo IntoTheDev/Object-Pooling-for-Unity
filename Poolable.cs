@@ -10,7 +10,7 @@ namespace ToolBox.Pools
 	{
 		public Pool Pool { get; private set; } = null;
 
-		private IPoolable[] _poolables = null;
+		private IPoolable[] _poolables = new IPoolable[0];
 		private bool _isPooled = false;
 		private bool _isEnabled = true;
 
