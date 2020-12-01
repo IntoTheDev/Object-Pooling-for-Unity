@@ -1,21 +1,15 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace ToolBox.Pools
 {
 	public static class PoolExtensions
 	{
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static void Populate(this GameObject prefab, int count)
 		{
 			var pool = Pool.Get(prefab);
 			pool.Populate(count);
 		}
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static Poolable Spawn(this GameObject prefab)
 		{
 			var pool = Pool.Get(prefab);
@@ -24,9 +18,6 @@ namespace ToolBox.Pools
 			return entity;
 		}
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static Poolable Spawn(this GameObject prefab, Transform parent, bool spawnInWorldSpace)
 		{
 			var pool = Pool.Get(prefab);
@@ -35,9 +26,6 @@ namespace ToolBox.Pools
 			return entity;
 		}
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static Poolable Spawn(this GameObject prefab, Vector3 position, Quaternion rotation)
 		{
 			var pool = Pool.Get(prefab);
@@ -46,9 +34,6 @@ namespace ToolBox.Pools
 			return entity;
 		}
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static Poolable Spawn(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
 		{
 			var pool = Pool.Get(prefab);
@@ -57,27 +42,15 @@ namespace ToolBox.Pools
 			return entity;
 		}
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static T Spawn<T>(this GameObject prefab) where T : Component =>
 			prefab.Spawn().GetComponent<T>();
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static T Spawn<T>(this GameObject prefab, Transform parent, bool spawnInWorldSpace) where T : Component =>
 			prefab.Spawn(parent, spawnInWorldSpace).GetComponent<T>();
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static T Spawn<T>(this GameObject prefab, Vector3 position, Quaternion rotation) where T : Component =>
 			prefab.Spawn(position, rotation).GetComponent<T>();
 
-		/// <summary>
-		/// Use this method only with Prefabs
-		/// </summary>
 		public static T Spawn<T>(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
 			prefab.Spawn(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
