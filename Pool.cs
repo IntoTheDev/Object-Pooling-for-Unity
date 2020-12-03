@@ -50,9 +50,6 @@ namespace ToolBox.Pools
 
 		public void Populate(int count)
 		{
-			if (count <= 0)
-				return;
-
 			for (int i = 0; i < count; i++)
 			{
 				Poolable entity = Object.Instantiate(_prefab);
