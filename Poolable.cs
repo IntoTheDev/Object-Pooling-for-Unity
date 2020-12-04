@@ -1,4 +1,4 @@
-﻿#if ODIN_INSPECTOR
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
 using UnityEngine;
@@ -9,10 +9,10 @@ namespace ToolBox.Pools
 	public class Poolable : MonoBehaviour
 	{
 		public Pool Pool { get; private set; } = null;
+		public bool IsPooled { get; private set; } = false;
 
 		private IPoolable[] _poolables = new IPoolable[0];
-		private bool _isPooled = false;
-		private bool _isEnabled = true;
+		private bool _isEnabled = false;
 
 		private void Awake() =>
 			_poolables = GetComponentsInChildren<IPoolable>(true);
@@ -42,10 +42,10 @@ namespace ToolBox.Pools
 
 		public void SetPool(Pool pool)
 		{
-			if (!_isPooled)
+			if (!IsPooled)
 			{
 				Pool = pool;
-				_isPooled = true;
+				IsPooled = true;
 			}
 		}
 	}
