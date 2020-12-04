@@ -57,8 +57,16 @@ namespace ToolBox.Pools
 		/// <summary>
 		/// Use this method only with Instances of Prefab
 		/// </summary>
-		public static void Despawn(this Poolable instance) =>
+		public static void Despawn(this Poolable instance)
+		{
+			if (!instance.IsPooled)
+			{
+				Object.Destroy(instance.gameObject);
+				return;
+			}
+
 			instance.ReturnToPool();
+		}
 
 		/// <summary>
 		/// Use this method only with Instances of Prefab. Slow in terms of perforamance, use Despawn with Poolable param instead
@@ -68,9 +76,19 @@ namespace ToolBox.Pools
 			var poolable = instance.GetComponent<Poolable>();
 
 			if (poolable != null)
+			{
+				if (!poolable.IsPooled)
+				{
+					Object.Destroy(instance);
+					return;
+				}
+
 				poolable.ReturnToPool();
+			}
 			else
+			{
 				Object.Destroy(instance);
+			}
 		}
 	}
 }
