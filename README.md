@@ -39,6 +39,7 @@ public class Spawner : MonoBehaviour
 	public void Spawn()
 	{
 		_prefab.Spawn(transform.position, transform.rotation);
+		
 		// Get object from pool with component
 		_prefab.Spawn<Rigidbody>(transform.position, transform.rotation).isKinematic = true;
 	}
@@ -57,6 +58,7 @@ public class Spawner : MonoBehaviour
 	public void Spawn()
 	{
 		var instance = _prefab.Spawn(transform.position, transform.rotation);
+		
 		// Use this only with Instances of Prefab
 		instance.Despawn();
 	}
