@@ -1,5 +1,4 @@
-# Object-Pooling-for-Unity
-Object Pooling for Unity
+# Object Pooling for Unity
 
 ## Features
 - Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
@@ -12,6 +11,7 @@ Object Pooling for Unity
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
+
 public class Spawner : MonoBehaviour
 {
 	[SerializeField] private GameObject _prefab = null;
@@ -30,9 +30,11 @@ Also, you can just put PoolInstaller component on any object on Scene and select
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
+
 public class Spawner : MonoBehaviour
 {
 	[SerializeField] private GameObject _prefab = null;
+	
 	public void Spawn()
 	{
 		_prefab.Spawn(transform.position, transform.rotation);
@@ -46,9 +48,11 @@ public class Spawner : MonoBehaviour
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
+
 public class Spawner : MonoBehaviour
 {
 	[SerializeField] private GameObject _prefab = null;
+	
 	public void Spawn()
 	{
 		var instance = _prefab.Spawn(transform.position, transform.rotation);
@@ -62,15 +66,19 @@ public class Spawner : MonoBehaviour
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
+
 public class Health : MonoBehaviour, IPoolable
 {
 	[SerializeField] private float _maxHealth = 100f;
 	private float _health = 0f;
+	
 	private void Awake() =>
 		_health = _maxHealth;
+		
 	// IPoolable method
 	public void OnSpawn() =>
 		_health = _maxHealth;
+		
 	// IPoolable method
 	public void OnDespawn() { }
 }
@@ -85,19 +93,23 @@ Creating and destroying 1000 objects.
 using Sirenix.OdinInspector;
 using System.Diagnostics;
 using UnityEngine;
+
 public class Tester : MonoBehaviour
 {
 	[SerializeField] private GameObject _object = null;
+	
 	[Button]
 	private void Test()
 	{
 		Stopwatch stopwatch = new Stopwatch();
 		stopwatch.Start();
+		
 		for (int i = 0; i < 1000; i++)
 		{
 			var instance = Instantiate(_object);
 			Destroy(instance);
 		}
+		
 		stopwatch.Stop();
 		print($"Milliseconds: {stopwatch.ElapsedMilliseconds}");
 	}
@@ -112,23 +124,28 @@ using Sirenix.OdinInspector;
 using System.Diagnostics;
 using ToolBox.Pools;
 using UnityEngine;
+
 public class Tester : MonoBehaviour
 {
 	[SerializeField] private GameObject _object = null;
+	
 	private void Awake()
 	{
 		_object.Populate(1000);
 	}
+	
 	[Button]
 	private void Test()
 	{
 		Stopwatch stopwatch = new Stopwatch();
 		stopwatch.Start();
+		
 		for (int i = 0; i < 1000; i++)
 		{
 			var instance = _object.Spawn();
 			instance.Despawn();
 		}
+		
 		stopwatch.Stop();
 		print($"Milliseconds: {stopwatch.ElapsedMilliseconds}");
 	}
