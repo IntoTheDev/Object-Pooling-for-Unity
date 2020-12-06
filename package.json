@@ -1,0 +1,12 @@
+{
+  "name": "com.intothedev.objectpooling",
+  "version": "1.4.0",
+  "displayName": "Object Pooling",
+  "description": "Object Pooling for Unity.",
+  "author": {
+    "name": "IntoTheDev",
+    "email": "indraayy322@gmail.com",
+    "url": "https://github.com/IntoTheDev"
+  },
+  "type": "tool"
+}
