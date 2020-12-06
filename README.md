@@ -15,6 +15,7 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
 	[SerializeField] private GameObject _prefab = null;
+	
 	private void Awake()
 	{
 		_prefab.Populate(count: 50);
