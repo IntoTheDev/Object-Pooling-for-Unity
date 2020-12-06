@@ -7,6 +7,20 @@ Object Pooling for Unity
 - Easy to integrate with already written spawn systems
 - Callbacks OnSpawn & OnDespawn for resseting after object being used
 
+## How to Install
+### Git Installation
+
+If you have Git on your computer, you can open Package Manager indside Unity, select "Add package from Git url...", and paste link ```https://github.com/IntoTheDev/Object-Pooling-for-Unity.git```
+
+or
+
+Open the manifest.json file of your Unity project.
+Add ```"com.intothedev.objectpooling": "https://github.com/IntoTheDev/Object-Pooling-for-Unity.git"```
+
+### Manual Installation
+Download latest package from the Release section
+Import ObjectPooling.unitypackage to your Unity Project
+
 ## Usage
 ### How to populate pool:
 ```csharp
