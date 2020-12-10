@@ -73,8 +73,6 @@ public class Spawner : MonoBehaviour
 	public void Spawn()
 	{
 		var instance = _prefab.Spawn(transform.position, transform.rotation);
-		
-		// Use this only with Instances of Prefab
 		instance.Despawn();
 	}
 }
