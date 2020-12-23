@@ -8,7 +8,7 @@ Object Pooling for Unity
 - Callbacks OnSpawn & OnDespawn for resseting after object being used
 
 ## How to Install
-### Git Installation
+### Git Installation (Best way to get latest version)
 
 If you have Git on your computer, you can open Package Manager indside Unity, select "Add package from Git url...", and paste link ```https://github.com/IntoTheDev/Object-Pooling-for-Unity.git```
 
