@@ -54,9 +54,6 @@ namespace ToolBox.Pools
 		public static T Spawn<T>(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
 			prefab.Spawn(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
-		/// <summary>
-		/// Use this method only with Instances of Prefab
-		/// </summary>
 		public static void Despawn(this Poolable instance)
 		{
 			if (!instance.IsPooled)
@@ -68,27 +65,14 @@ namespace ToolBox.Pools
 			instance.ReturnToPool();
 		}
 
-		/// <summary>
-		/// Use this method only with Instances of Prefab. Slow in terms of perforamance, use Despawn with Poolable param instead
-		/// </summary>
 		public static void Despawn(this GameObject instance)
 		{
-			var poolable = instance.GetComponent<Poolable>();
+			var isPooled = Poolable.IsInstancePooled(instance);
 
-			if (poolable != null)
-			{
-				if (!poolable.IsPooled)
-				{
-					Object.Destroy(instance);
-					return;
-				}
-
-				poolable.ReturnToPool();
-			}
+			if (isPooled)
+				instance.GetComponent<Poolable>().ReturnToPool();
 			else
-			{
 				Object.Destroy(instance);
-			}
 		}
 	}
 }
