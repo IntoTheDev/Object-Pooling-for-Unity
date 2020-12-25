@@ -1,5 +1,6 @@
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+using System.Collections.Generic;
 #endif
 using UnityEngine;
 
@@ -13,6 +14,8 @@ namespace ToolBox.Pools
 
 		private IPoolable[] _poolables = new IPoolable[0];
 		private bool _isEnabled = false;
+
+		private static HashSet<int> _pooledObjects = new HashSet<int>();
 
 		private void Awake() =>
 			_poolables = GetComponentsInChildren<IPoolable>(true);
@@ -46,7 +49,11 @@ namespace ToolBox.Pools
 			{
 				Pool = pool;
 				IsPooled = true;
+				_pooledObjects.Add(gameObject.GetHashCode());
 			}
 		}
+
+		public static bool IsInstancePooled(GameObject instance) =>
+			_pooledObjects.Contains(instance.GetHashCode());
 	}
 }
