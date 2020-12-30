@@ -1,7 +1,7 @@
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-using System.Collections.Generic;
 #endif
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ToolBox.Pools
