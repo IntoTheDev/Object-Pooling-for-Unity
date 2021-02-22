@@ -28,6 +28,7 @@ namespace ToolBox.Pools
 			if (_prefab == null)
 			{
 				_prefab = Object.Instantiate(prefab).AddComponent<Poolable>();
+				UnityEngine.Object.DontDestroyOnLoad(_prefab);
 				_prefab.gameObject.SetActive(false);
 			}
 
