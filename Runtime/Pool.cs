@@ -6,7 +6,6 @@ namespace ToolBox.Pools
 	public sealed class Pool
 	{
 		private Poolable _prefab = null;
-		private int _currentCount = 0;
 		private Queue<Poolable> _entities = null;
 
 		private static Dictionary<int, Pool> _pools = new Dictionary<int, Pool>();
@@ -14,7 +13,6 @@ namespace ToolBox.Pools
 		public Pool(Poolable prefab, int count)
 		{
 			_prefab = prefab;
-			_currentCount = count;
 			_entities = new Queue<Poolable>(count);
 			_pools.Add(prefab.gameObject.GetHashCode(), this);
 
@@ -32,7 +30,6 @@ namespace ToolBox.Pools
 				_prefab.gameObject.SetActive(false);
 			}
 
-			_currentCount = count;
 			_entities = new Queue<Poolable>(count);
 			_pools.Add(prefab.GetHashCode(), this);
 
@@ -58,8 +55,6 @@ namespace ToolBox.Pools
 				_entities.Enqueue(entity);
 				entity.gameObject.SetActive(false);
 			}
-
-			_currentCount += count;
 		}
 
 		public Poolable GetEntity()
@@ -120,7 +115,6 @@ namespace ToolBox.Pools
 				return;
 
 			_entities.Enqueue(entity);
-			_currentCount++;
 
 			entity.transform.SetParent(null, false);
 			entity.gameObject.SetActive(false);
@@ -130,7 +124,7 @@ namespace ToolBox.Pools
 		{
 			Poolable entity;
 
-			if (_currentCount == 0)
+			if (_entities.Count == 0)
 			{
 				entity = Object.Instantiate(_prefab);
 				entity.SetPool(this);
@@ -145,11 +139,9 @@ namespace ToolBox.Pools
 			{
 				entity = Object.Instantiate(_prefab);
 				entity.SetPool(this);
-				_currentCount++;
 			}
 
 			entity.gameObject.SetActive(true);
-			_currentCount--;
 
 			return entity;
 		}
