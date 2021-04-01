@@ -42,7 +42,7 @@ Also, you can just put PoolInstaller component on any object on Scene and select
 
 ![](https://i.imgur.com/gnyZ0RQ.png)
 
-### How to spawn object from pool:
+### How to get object from pool:
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
@@ -61,7 +61,7 @@ public class Spawner : MonoBehaviour
 }
 ```
 
-### How to return object to pool:
+### How to release object:
 ```csharp
 using ToolBox.Pools;
 using UnityEngine;
