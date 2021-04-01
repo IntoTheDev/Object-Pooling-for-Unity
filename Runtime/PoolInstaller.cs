@@ -19,8 +19,11 @@ namespace ToolBox.Pools
 			[SerializeField] private GameObject _prefab;
 			[SerializeField, Min(1)] private int _startCount;
 
-			public void Populate() =>
-				new Pool(_prefab, _startCount);
+			public void Populate()
+			{
+				var pool = new Pool(_prefab);
+				pool.Populate(_startCount);
+			}
 		}
 	}
 }

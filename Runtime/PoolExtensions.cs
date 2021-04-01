@@ -6,73 +6,62 @@ namespace ToolBox.Pools
 	{
 		public static void Populate(this GameObject prefab, int count)
 		{
-			var pool = Pool.Get(prefab);
+			var pool = Pool.GetPrefabPool(prefab);
 			pool.Populate(count);
 		}
 
-		public static Poolable Spawn(this GameObject prefab)
+		public static GameObject Get(this GameObject prefab)
 		{
-			var pool = Pool.Get(prefab);
-			var entity = pool.GetEntity();
+			var pool = Pool.GetPrefabPool(prefab);
+			var entity = pool.Get();
 
 			return entity;
 		}
 
-		public static Poolable Spawn(this GameObject prefab, Transform parent, bool spawnInWorldSpace)
+		public static GameObject Get(this GameObject prefab, Transform parent, bool spawnInWorldSpace)
 		{
-			var pool = Pool.Get(prefab);
-			var entity = pool.GetEntity(parent, spawnInWorldSpace);
+			var pool = Pool.GetPrefabPool(prefab);
+			var entity = pool.Get(parent, spawnInWorldSpace);
 
 			return entity;
 		}
 
-		public static Poolable Spawn(this GameObject prefab, Vector3 position, Quaternion rotation)
+		public static GameObject Get(this GameObject prefab, Vector3 position, Quaternion rotation)
 		{
-			var pool = Pool.Get(prefab);
-			var entity = pool.GetEntity(position, rotation);
+			var pool = Pool.GetPrefabPool(prefab);
+			var entity = pool.Get(position, rotation);
 
 			return entity;
 		}
 
-		public static Poolable Spawn(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
+		public static GameObject Get(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
 		{
-			var pool = Pool.Get(prefab);
-			var entity = pool.GetEntity(position, rotation, parent, spawnInWorldSpace);
+			var pool = Pool.GetPrefabPool(prefab);
+			var entity = pool.Get(position, rotation, parent, spawnInWorldSpace);
 
 			return entity;
 		}
 
-		public static T Spawn<T>(this GameObject prefab) where T : Component =>
-			prefab.Spawn().GetComponent<T>();
+		public static T Get<T>(this GameObject prefab) where T : Component =>
+			prefab.Get().GetComponent<T>();
 
-		public static T Spawn<T>(this GameObject prefab, Transform parent, bool spawnInWorldSpace) where T : Component =>
-			prefab.Spawn(parent, spawnInWorldSpace).GetComponent<T>();
+		public static T Get<T>(this GameObject prefab, Transform parent, bool spawnInWorldSpace) where T : Component =>
+			prefab.Get(parent, spawnInWorldSpace).GetComponent<T>();
 
-		public static T Spawn<T>(this GameObject prefab, Vector3 position, Quaternion rotation) where T : Component =>
-			prefab.Spawn(position, rotation).GetComponent<T>();
+		public static T Get<T>(this GameObject prefab, Vector3 position, Quaternion rotation) where T : Component =>
+			prefab.Get(position, rotation).GetComponent<T>();
 
-		public static T Spawn<T>(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
-			prefab.Spawn(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
+		public static T Get<T>(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
+			prefab.Get(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
-		public static void Despawn(this Poolable instance)
+		public static void Release(this GameObject instance)
 		{
-			if (!instance.IsPooled)
-			{
-				Object.Destroy(instance.gameObject);
-				return;
-			}
+			var pool = Pool.GetInstancePool(instance);
 
-			instance.ReturnToPool();
-		}
-
-		public static void Despawn(this GameObject instance)
-		{
-			var isPooled = Poolable.IsInstancePooled(instance);
-
-			if (isPooled)
-				instance.GetComponent<Poolable>().ReturnToPool();
-			else
+			if (pool == null)
 				Object.Destroy(instance);
+			else
+				pool.Release(instance.GetComponent<Poolable>());
 		}
 	}
 }
