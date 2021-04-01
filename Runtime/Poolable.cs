@@ -1,6 +1,3 @@
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 using UnityEngine;
 
 namespace ToolBox.Pools
@@ -13,19 +10,16 @@ namespace ToolBox.Pools
 		private void Awake() =>
 			_poolables = GetComponentsInChildren<IPoolable>(true);
 
-#if ODIN_INSPECTOR
-		[Button]
-#endif
-		public void ReturnToPool()
-		{
-			for (int i = 0; i < _poolables.Length; i++)
-				_poolables[i].OnRelease();
-		}
-
-		public void ReturnFromPool()
+		public void OnGet()
 		{
 			for (int i = 0; i < _poolables.Length; i++)
 				_poolables[i].OnGet();
+		}
+
+		public void OnRelease()
+		{
+			for (int i = 0; i < _poolables.Length; i++)
+				_poolables[i].OnRelease();
 		}
 	}
 }
