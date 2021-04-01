@@ -106,7 +106,7 @@ namespace ToolBox.Pools
 
 			entity.transform.SetParent(null, false);
 			entity.gameObject.SetActive(false);
-			entity.ReturnToPool();
+			entity.OnRelease();
 		}
 
 		private Poolable GetEntityFromPool()
@@ -130,7 +130,7 @@ namespace ToolBox.Pools
 				}
 				else
 				{
-					entity.ReturnFromPool();
+					entity.OnGet();
 				}
 
 				entity.gameObject.SetActive(true);
