@@ -5,7 +5,7 @@ Object Pooling for Unity
 - Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
 - Easy to use
 - Easy to integrate with already written spawn systems
-- Callbacks OnSpawn & OnDespawn for resseting after object being used
+- Callbacks OnGet & OnRelease for resseting after object being used
 
 ## How to Install
 ### Git Installation (Best way to get latest version)
@@ -53,10 +53,10 @@ public class Spawner : MonoBehaviour
 	
 	public void Spawn()
 	{
-		_prefab.Spawn(transform.position, transform.rotation);
+		_prefab.Get(transform.position, transform.rotation);
 		
 		// Get object from pool with component
-		_prefab.Spawn<Rigidbody>(transform.position, transform.rotation).isKinematic = true;
+		_prefab.Get<Rigidbody>(transform.position, transform.rotation).isKinematic = true;
 	}
 }
 ```
@@ -72,8 +72,8 @@ public class Spawner : MonoBehaviour
 	
 	public void Spawn()
 	{
-		var instance = _prefab.Spawn(transform.position, transform.rotation);
-		instance.Despawn();
+		var instance = _prefab.Get(transform.position, transform.rotation);
+		instance.Release();
 	}
 }
 ```
@@ -93,11 +93,11 @@ public class Health : MonoBehaviour, IPoolable
 		_health = _maxHealth;
 		
 	// IPoolable method
-	public void OnSpawn() =>
+	public void OnGet() =>
 		_health = _maxHealth;
 		
 	// IPoolable method
-	public void OnDespawn() { }
+	public void OnRelease() { }
 }
 ```
 
@@ -134,7 +134,7 @@ public class Tester : MonoBehaviour
 ```
 ##### Result: [16:26:15] Milliseconds: 6
 
-#### Spawn/Despawn:
+#### Get/Release:
 
 ```csharp
 using Sirenix.OdinInspector;
@@ -159,8 +159,8 @@ public class Tester : MonoBehaviour
 		
 		for (int i = 0; i < 1000; i++)
 		{
-			var instance = _object.Spawn();
-			instance.Despawn();
+			var instance = _object.Get();
+			instance.Release();
 		}
 		
 		stopwatch.Stop();
