@@ -19,13 +19,13 @@ namespace ToolBox.Pools
 		public void ReturnToPool()
 		{
 			for (int i = 0; i < _poolables.Length; i++)
-				_poolables[i].OnDespawn();
+				_poolables[i].OnRelease();
 		}
 
 		public void ReturnFromPool()
 		{
 			for (int i = 0; i < _poolables.Length; i++)
-				_poolables[i].OnSpawn();
+				_poolables[i].OnGet();
 		}
 	}
 }
