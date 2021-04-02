@@ -18,7 +18,7 @@ Open the manifest.json file of your Unity project.
 Add ```"com.intothedev.objectpooling": "https://github.com/IntoTheDev/Object-Pooling-for-Unity.git"```
 
 ### Manual Installation (Version can be outdated)
-Download latest package from the Release section
+Download latest package from the Release section.
 Import ObjectPooling.unitypackage to your Unity Project
 
 ## Usage
