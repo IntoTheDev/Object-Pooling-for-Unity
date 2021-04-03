@@ -28,7 +28,7 @@ namespace ToolBox.Pools
 
 		public static Pool GetPrefabPool(GameObject prefab)
 		{
-			var hasPool = _prefabLookup.TryGetValue(prefab.GetHashCode(), out var pool);
+			bool hasPool = _prefabLookup.TryGetValue(prefab.GetHashCode(), out var pool);
 
 			if (!hasPool)
 				pool = new Pool(prefab);
