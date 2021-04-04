@@ -48,6 +48,7 @@ namespace ToolBox.Pools
 			{
 				var entity = Object.Instantiate(_prefab);
 				_entities.Push(entity);
+                                _instanceLookup.Add(entity.gameObject.GetHashCode(), this);
 				entity.gameObject.SetActive(false);
 			}
 		}
