@@ -6,7 +6,7 @@ namespace ToolBox.Pools
 	public sealed class Pool
 	{
 		private Poolable _prefab = null;
-		private Stack<Poolable> _entities = null;
+		private Stack<Poolable> _instances = null;
 
 		private static Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>();
 		private static Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>();
@@ -22,7 +22,7 @@ namespace ToolBox.Pools
 				_prefab.gameObject.SetActive(false);
 			}
 
-			_entities = new Stack<Poolable>();
+			_instances = new Stack<Poolable>();
 			_prefabLookup.Add(prefab.GetHashCode(), this);
 		}
 
@@ -46,47 +46,46 @@ namespace ToolBox.Pools
 		{
 			for (int i = 0; i < count; i++)
 			{
-				var entity = Object.Instantiate(_prefab);
-				_entities.Push(entity);
-                                _instanceLookup.Add(entity.gameObject.GetHashCode(), this);
-				entity.gameObject.SetActive(false);
+				var instance = CreateInstance();
+				_instances.Push(instance);
+				instance.gameObject.SetActive(false);
 			}
 		}
 
 		public GameObject Get()
 		{
-			var entity = GetEntityFromPool();
+			var instance = GetInstance();
 
-			return entity.gameObject;
+			return instance.gameObject;
 		}
 
 		public GameObject Get(Transform parent, bool spawnInWorldSpace)
 		{
-			var entity = GetEntityFromPool();
+			var instance = GetInstance();
 
-			entity.transform.SetParent(parent, spawnInWorldSpace);
+			instance.transform.SetParent(parent, spawnInWorldSpace);
 
-			return entity.gameObject;
+			return instance.gameObject;
 		}
 
 		public GameObject Get(Vector3 position, Quaternion rotation)
 		{
-			var entity = GetEntityFromPool();
+			var instance = GetInstance();
 
-			entity.transform.SetPositionAndRotation(position, rotation);
+			instance.transform.SetPositionAndRotation(position, rotation);
 
-			return entity.gameObject;
+			return instance.gameObject;
 		}
 
 		public GameObject Get(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
 		{
-			var entity = GetEntityFromPool();
-			var entityTransform = entity.transform;
+			var instance = GetInstance();
+			var instanceTransform = instance.transform;
 
-			entityTransform.SetParent(parent, spawnInWorldSpace);
-			entityTransform.SetPositionAndRotation(position, rotation);
+			instanceTransform.SetParent(parent, spawnInWorldSpace);
+			instanceTransform.SetPositionAndRotation(position, rotation);
 
-			return entity.gameObject;
+			return instance.gameObject;
 		}
 
 		public T Get<T>() where T : Component =>
@@ -101,43 +100,45 @@ namespace ToolBox.Pools
 		public T Get<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
 			Get(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
-		public void Release(Poolable entity)
+		public void Release(Poolable instance)
 		{
-			_entities.Push(entity);
+			_instances.Push(instance);
 
-			entity.transform.SetParent(null, false);
-			entity.gameObject.SetActive(false);
-			entity.OnRelease();
+			instance.transform.SetParent(null, false);
+			instance.gameObject.SetActive(false);
+			instance.OnRelease();
 		}
 
-		private Poolable GetEntityFromPool()
+		private Poolable GetInstance()
 		{
-			if (_entities.Count == 0)
+			if (_instances.Count == 0)
 			{
-				var entity = Object.Instantiate(_prefab);
-				_instanceLookup.Add(entity.gameObject.GetHashCode(), this);
-				entity.gameObject.SetActive(true);
+				var instance = CreateInstance();
+				instance.gameObject.SetActive(true);
 
-				return entity;
+				return instance;
 			}
 			else
 			{
-				var entity = _entities.Pop();
+				var instance = _instances.Pop();
 
-				if (entity == null)
-				{
-					entity = Object.Instantiate(_prefab);
-					_instanceLookup.Add(entity.gameObject.GetHashCode(), this);
-				}
+				if (instance == null)
+					instance = CreateInstance();
 				else
-				{
-					entity.OnGet();
-				}
+					instance.OnGet();
 
-				entity.gameObject.SetActive(true);
+				instance.gameObject.SetActive(true);
 
-				return entity;
+				return instance;
 			}
+		}
+
+		private Poolable CreateInstance()
+		{
+			var entity = Object.Instantiate(_prefab);
+			_instanceLookup.Add(entity.gameObject.GetHashCode(), this);
+
+			return entity;
 		}
 	}
 }
