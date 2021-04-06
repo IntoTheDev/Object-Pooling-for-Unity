@@ -4,43 +4,20 @@ namespace ToolBox.Pools
 {
 	public static class PoolExtensions
 	{
-		public static void Populate(this GameObject prefab, int count)
-		{
-			var pool = Pool.GetPrefabPool(prefab);
-			pool.Populate(count);
-		}
+		public static void Populate(this GameObject prefab, int count) =>
+			Pool.GetPrefabPool(prefab).Populate(count);
 
-		public static GameObject Get(this GameObject prefab)
-		{
-			var pool = Pool.GetPrefabPool(prefab);
-			var entity = pool.Get();
+		public static GameObject Get(this GameObject prefab) =>
+			Pool.GetPrefabPool(prefab).Get();
 
-			return entity;
-		}
+		public static GameObject Get(this GameObject prefab, Transform parent, bool spawnInWorldSpace) =>
+			Pool.GetPrefabPool(prefab).Get(parent, spawnInWorldSpace);
 
-		public static GameObject Get(this GameObject prefab, Transform parent, bool spawnInWorldSpace)
-		{
-			var pool = Pool.GetPrefabPool(prefab);
-			var entity = pool.Get(parent, spawnInWorldSpace);
+		public static GameObject Get(this GameObject prefab, Vector3 position, Quaternion rotation) =>
+			Pool.GetPrefabPool(prefab).Get(position, rotation);
 
-			return entity;
-		}
-
-		public static GameObject Get(this GameObject prefab, Vector3 position, Quaternion rotation)
-		{
-			var pool = Pool.GetPrefabPool(prefab);
-			var entity = pool.Get(position, rotation);
-
-			return entity;
-		}
-
-		public static GameObject Get(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
-		{
-			var pool = Pool.GetPrefabPool(prefab);
-			var entity = pool.Get(position, rotation, parent, spawnInWorldSpace);
-
-			return entity;
-		}
+		public static GameObject Get(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) =>
+			Pool.GetPrefabPool(prefab).Get(position, rotation, parent, spawnInWorldSpace);
 
 		public static T Get<T>(this GameObject prefab) where T : Component =>
 			prefab.Get().GetComponent<T>();
@@ -56,12 +33,12 @@ namespace ToolBox.Pools
 
 		public static void Release(this GameObject instance)
 		{
-			var pool = Pool.GetInstancePool(instance);
+			bool isPooled = Pool.TryGetInstancePool(instance, out var pool);
 
-			if (pool == null)
-				Object.Destroy(instance);
+			if (isPooled)
+				pool.Release(instance);
 			else
-				pool.Release(instance.GetComponent<Poolable>());
+				Object.Destroy(instance);
 		}
 	}
 }

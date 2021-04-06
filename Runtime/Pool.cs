@@ -8,8 +8,8 @@ namespace ToolBox.Pools
 		private Poolable _prefab = null;
 		private Stack<Poolable> _instances = null;
 
-		private static Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>();
-		private static Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>();
+		private static Dictionary<GameObject, Pool> _prefabLookup = new Dictionary<GameObject, Pool>();
+		private static Dictionary<GameObject, Pool> _instanceLookup = new Dictionary<GameObject, Pool>();
 
 		public Pool(GameObject prefab)
 		{
@@ -23,12 +23,12 @@ namespace ToolBox.Pools
 			}
 
 			_instances = new Stack<Poolable>();
-			_prefabLookup.Add(prefab.GetHashCode(), this);
+			_prefabLookup.Add(prefab, this);
 		}
 
 		public static Pool GetPrefabPool(GameObject prefab)
 		{
-			bool hasPool = _prefabLookup.TryGetValue(prefab.GetHashCode(), out var pool);
+			bool hasPool = _prefabLookup.TryGetValue(prefab, out var pool);
 
 			if (!hasPool)
 				pool = new Pool(prefab);
@@ -36,11 +36,8 @@ namespace ToolBox.Pools
 			return pool;
 		}
 
-		public static Pool GetInstancePool(GameObject instance)
-		{
-			_instanceLookup.TryGetValue(instance.GetHashCode(), out var pool);
-			return pool;
-		}
+		public static bool TryGetInstancePool(GameObject instance, out Pool pool) =>
+			_instanceLookup.TryGetValue(instance, out pool);
 
 		public void Populate(int count)
 		{
@@ -48,16 +45,11 @@ namespace ToolBox.Pools
 			{
 				var instance = CreateInstance();
 				_instances.Push(instance);
-				instance.gameObject.SetActive(false);
 			}
 		}
 
-		public GameObject Get()
-		{
-			var instance = GetInstance();
-
-			return instance.gameObject;
-		}
+		public GameObject Get() =>
+			GetInstance().gameObject;
 
 		public GameObject Get(Transform parent, bool spawnInWorldSpace)
 		{
@@ -100,45 +92,44 @@ namespace ToolBox.Pools
 		public T Get<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
 			Get(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
-		public void Release(Poolable instance)
+		public void Release(GameObject instance)
 		{
-			_instances.Push(instance);
+			var poolable = instance.GetComponent<Poolable>();
+			_instances.Push(poolable);
 
 			instance.transform.SetParent(null, false);
-			instance.gameObject.SetActive(false);
-			instance.OnRelease();
+			instance.SetActive(false);
+			poolable.OnRelease();
 		}
 
 		private Poolable GetInstance()
 		{
+			Poolable instance;
+
 			if (_instances.Count == 0)
 			{
-				var instance = CreateInstance();
-				instance.gameObject.SetActive(true);
-
-				return instance;
+				instance = CreateInstance();
 			}
 			else
 			{
-				var instance = _instances.Pop();
+				instance = _instances.Pop();
 
 				if (instance == null)
 					instance = CreateInstance();
 				else
 					instance.OnGet();
-
-				instance.gameObject.SetActive(true);
-
-				return instance;
 			}
+
+			instance.gameObject.SetActive(true);
+			return instance;
 		}
 
 		private Poolable CreateInstance()
 		{
-			var entity = Object.Instantiate(_prefab);
-			_instanceLookup.Add(entity.gameObject.GetHashCode(), this);
+			var instance = Object.Instantiate(_prefab);
+			_instanceLookup.Add(instance.gameObject, this);
 
-			return entity;
+			return instance;
 		}
 	}
 }
