@@ -1,5 +1,4 @@
 # Object Pooling for Unity
-Object Pooling for Unity
 
 ## Features
 - Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
