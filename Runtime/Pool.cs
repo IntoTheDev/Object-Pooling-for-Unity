@@ -8,8 +8,8 @@ namespace ToolBox.Pools
 		private Poolable _prefab = null;
 		private Stack<Poolable> _instances = null;
 
-		private static Dictionary<GameObject, Pool> _prefabLookup = new Dictionary<GameObject, Pool>();
-		private static Dictionary<GameObject, Pool> _instanceLookup = new Dictionary<GameObject, Pool>();
+		private static Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>();
+		private static Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>();
 
 		public Pool(GameObject prefab)
 		{
@@ -23,12 +23,12 @@ namespace ToolBox.Pools
 			}
 
 			_instances = new Stack<Poolable>();
-			_prefabLookup.Add(prefab, this);
+			_prefabLookup.Add(prefab.GetHashCode(), this);
 		}
 
 		public static Pool GetPrefabPool(GameObject prefab)
 		{
-			bool hasPool = _prefabLookup.TryGetValue(prefab, out var pool);
+			bool hasPool = _prefabLookup.TryGetValue(prefab.GetHashCode(), out var pool);
 
 			if (!hasPool)
 				pool = new Pool(prefab);
@@ -37,7 +37,7 @@ namespace ToolBox.Pools
 		}
 
 		public static bool TryGetInstancePool(GameObject instance, out Pool pool) =>
-			_instanceLookup.TryGetValue(instance, out pool);
+			_instanceLookup.TryGetValue(instance.GetHashCode(), out pool);
 
 		public void Populate(int count)
 		{
@@ -124,7 +124,7 @@ namespace ToolBox.Pools
 		private Poolable CreateInstance()
 		{
 			var instance = Object.Instantiate(_prefab);
-			_instanceLookup.Add(instance.gameObject, this);
+			_instanceLookup.Add(instance.gameObject.GetHashCode(), this);
 
 			return instance;
 		}
