@@ -5,11 +5,13 @@ namespace ToolBox.Pools
 {
 	public sealed class Pool
 	{
-		private Poolable _prefab = null;
-		private Stack<Poolable> _instances = null;
+		private readonly Poolable _prefab = null;
+		private readonly Stack<Poolable> _instances = null;
+		private readonly Quaternion _rotation = default;
+		private readonly Vector3 _scale = default;
 
-		private static Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>();
-		private static Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>();
+		private static readonly Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>();
+		private static readonly Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>();
 
 		public Pool(GameObject prefab)
 		{
@@ -24,6 +26,10 @@ namespace ToolBox.Pools
 
 			_instances = new Stack<Poolable>();
 			_prefabLookup.Add(prefab.GetHashCode(), this);
+
+			var transform = prefab.transform;
+			_rotation = transform.rotation;
+			_scale = transform.localScale;
 		}
 
 		public static Pool GetPrefabPool(GameObject prefab)
@@ -91,12 +97,16 @@ namespace ToolBox.Pools
 
 		public void Release(GameObject instance)
 		{
-			var poolable = instance.GetComponent<Poolable>();
-			_instances.Push(poolable);
-
-			instance.transform.SetParent(null);
 			instance.SetActive(false);
+
+			var instanceTransform = instance.transform;
+			instanceTransform.SetParent(null);
+			instanceTransform.rotation = _rotation;
+			instanceTransform.localScale = _scale;
+
+			var poolable = instance.GetComponent<Poolable>();
 			poolable.OnRelease();
+			_instances.Push(poolable);
 		}
 
 		private Poolable GetInstance()
