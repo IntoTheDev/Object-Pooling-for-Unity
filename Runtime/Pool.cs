@@ -51,11 +51,20 @@ namespace ToolBox.Pools
 		public GameObject Get() =>
 			GetInstance().gameObject;
 
-		public GameObject Get(Transform parent, bool spawnInWorldSpace)
+		public GameObject Get(Transform parent)
 		{
 			var instance = GetInstance();
 
-			instance.transform.SetParent(parent, spawnInWorldSpace);
+			instance.transform.SetParent(parent);
+
+			return instance.gameObject;
+		}
+
+		public GameObject Get(Transform parent, bool worldPositionStays)
+		{
+			var instance = GetInstance();
+
+			instance.transform.SetParent(parent, worldPositionStays);
 
 			return instance.gameObject;
 		}
@@ -69,35 +78,23 @@ namespace ToolBox.Pools
 			return instance.gameObject;
 		}
 
-		public GameObject Get(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace)
+		public GameObject Get(Vector3 position, Quaternion rotation, Transform parent)
 		{
 			var instance = GetInstance();
 			var instanceTransform = instance.transform;
 
-			instanceTransform.SetParent(parent, spawnInWorldSpace);
 			instanceTransform.SetPositionAndRotation(position, rotation);
+			instanceTransform.SetParent(parent);
 
 			return instance.gameObject;
 		}
-
-		public T Get<T>() where T : Component =>
-			Get().GetComponent<T>();
-
-		public T Get<T>(Transform parent, bool spawnInWorldSpace) where T : Component =>
-			Get(parent, spawnInWorldSpace).GetComponent<T>();
-
-		public T Get<T>(Vector3 position, Quaternion rotation) where T : Component =>
-			Get(position, rotation).GetComponent<T>();
-
-		public T Get<T>(Vector3 position, Quaternion rotation, Transform parent, bool spawnInWorldSpace) where T : Component =>
-			Get(position, rotation, parent, spawnInWorldSpace).GetComponent<T>();
 
 		public void Release(GameObject instance)
 		{
 			var poolable = instance.GetComponent<Poolable>();
 			_instances.Push(poolable);
 
-			instance.transform.SetParent(null, false);
+			instance.transform.SetParent(null);
 			instance.SetActive(false);
 			poolable.OnRelease();
 		}
