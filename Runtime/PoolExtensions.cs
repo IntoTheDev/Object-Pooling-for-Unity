@@ -28,8 +28,8 @@ namespace ToolBox.Pools
 		public static T Get<T>(this GameObject prefab, Transform parent) where T : Component =>
 			prefab.Get(parent).GetComponent<T>();
 
-		public static T Get<T>(this GameObject prefab, Transform parent, bool spawnInWorldSpace) where T : Component =>
-			prefab.Get(parent, spawnInWorldSpace).GetComponent<T>();
+		public static T Get<T>(this GameObject prefab, Transform parent, bool worldPositionStays) where T : Component =>
+			prefab.Get(parent, worldPositionStays).GetComponent<T>();
 
 		public static T Get<T>(this GameObject prefab, Vector3 position, Quaternion rotation) where T : Component =>
 			prefab.Get(position, rotation).GetComponent<T>();
