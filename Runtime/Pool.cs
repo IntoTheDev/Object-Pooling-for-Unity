@@ -10,8 +10,10 @@ namespace ToolBox.Pools
 		private readonly Quaternion _rotation = default;
 		private readonly Vector3 _scale = default;
 
-		private static readonly Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>();
-		private static readonly Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>();
+		private static readonly Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>(100);
+		private static readonly Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>(10000);
+
+		private const int CAPACITY = 100;
 
 		public Pool(GameObject prefab)
 		{
@@ -24,7 +26,7 @@ namespace ToolBox.Pools
 				_prefab.gameObject.SetActive(false);
 			}
 
-			_instances = new Stack<Poolable>();
+			_instances = new Stack<Poolable>(CAPACITY);
 			_prefabLookup.Add(prefab.GetHashCode(), this);
 
 			var transform = prefab.transform;
@@ -48,14 +50,15 @@ namespace ToolBox.Pools
 		public void Populate(int count)
 		{
 			for (int i = 0; i < count; i++)
-			{
-				var instance = CreateInstance();
-				_instances.Push(instance);
-			}
+				_instances.Push(CreateInstance());
 		}
 
-		public GameObject Get() =>
-			GetInstance().gameObject;
+		public GameObject Get()
+		{
+			var instance = GetInstance();
+
+			return instance.gameObject;
+		}
 
 		public GameObject Get(Transform parent)
 		{
@@ -75,14 +78,8 @@ namespace ToolBox.Pools
 			return instance.gameObject;
 		}
 
-		public GameObject Get(Vector3 position, Quaternion rotation)
-		{
-			var instance = GetInstance();
-
-			instance.transform.SetPositionAndRotation(position, rotation);
-
-			return instance.gameObject;
-		}
+		public GameObject Get(Vector3 position, Quaternion rotation) =>
+			Get(position, rotation, null);
 
 		public GameObject Get(Vector3 position, Quaternion rotation, Transform parent)
 		{
@@ -111,24 +108,51 @@ namespace ToolBox.Pools
 
 		private Poolable GetInstance()
 		{
-			Poolable instance;
+			int count = _instances.Count;
 
-			if (_instances.Count == 0)
+			if (count != 0)
 			{
-				instance = CreateInstance();
+				var instance = _instances.Pop();
+
+				if (instance == null)
+				{
+					count--;
+
+					while (count != 0)
+					{
+						instance = _instances.Pop();
+
+						if (instance != null)
+						{
+							instance.OnGet();
+							instance.gameObject.SetActive(true);
+
+							return instance;
+						}
+
+						count--;
+					}
+
+					instance = CreateInstance();
+					instance.gameObject.SetActive(true);
+
+					return instance;
+				}
+				else
+				{
+					instance.OnGet();
+					instance.gameObject.SetActive(true);
+
+					return instance;
+				}
 			}
 			else
 			{
-				instance = _instances.Pop();
+				var instance = CreateInstance();
+				instance.gameObject.SetActive(true);
 
-				if (instance == null)
-					instance = CreateInstance();
-				else
-					instance.OnGet();
+				return instance;
 			}
-
-			instance.gameObject.SetActive(true);
-			return instance;
 		}
 
 		private Poolable CreateInstance()
