@@ -78,8 +78,14 @@ namespace ToolBox.Pools
 			return instance.gameObject;
 		}
 
-		public GameObject Get(Vector3 position, Quaternion rotation) =>
-			Get(position, rotation, null);
+		public GameObject Get(Vector3 position, Quaternion rotation)
+		{
+			var instance = GetInstance();
+
+			instance.transform.SetPositionAndRotation(position, rotation);
+
+			return instance.gameObject;
+		}
 
 		public GameObject Get(Vector3 position, Quaternion rotation, Transform parent)
 		{
