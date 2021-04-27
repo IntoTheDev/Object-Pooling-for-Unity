@@ -4,7 +4,7 @@
 - Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
 - Easy to use
 - Easy to integrate with already written spawn systems
-- Callbacks OnGet & OnRelease for resseting after object being used
+- Callbacks OnGet & OnRelease for resseting object state
 
 ## How to Install
 ### Git Installation (Best way to get latest version)
