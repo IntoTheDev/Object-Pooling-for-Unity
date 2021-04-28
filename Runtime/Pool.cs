@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ToolBox.Pools
 {
-	public sealed class Pool
+	internal sealed class Pool
 	{
 		private readonly Poolable _prefab = null;
 		private readonly Stack<Poolable> _instances = null;

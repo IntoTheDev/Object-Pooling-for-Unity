@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ToolBox.Pools
 {
 	[DisallowMultipleComponent]
-	public class Poolable : MonoBehaviour
+	internal sealed class Poolable : MonoBehaviour
 	{
 		private IPoolable[] _poolables = new IPoolable[0];
 

@@ -3,7 +3,7 @@
 namespace ToolBox.Pools
 {
 	[DefaultExecutionOrder(-9999)]
-	public class PoolInstaller : MonoBehaviour
+	internal sealed class PoolInstaller : MonoBehaviour
 	{
 		[SerializeField] private PoolContainer[] _pools = null;
 
