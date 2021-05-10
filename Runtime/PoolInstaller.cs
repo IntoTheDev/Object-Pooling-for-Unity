@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace ToolBox.Pools
 {
-	[DefaultExecutionOrder(-9999)]
+	[DefaultExecutionOrder(-9999), DisallowMultipleComponent]
 	internal sealed class PoolInstaller : MonoBehaviour
 	{
 		[SerializeField] private PoolContainer[] _pools = null;
@@ -19,11 +19,8 @@ namespace ToolBox.Pools
 			[SerializeField] private GameObject _prefab;
 			[SerializeField, Min(1)] private int _startCount;
 
-			public void Populate()
-			{
-				var pool = new Pool(_prefab);
-				pool.Populate(_startCount);
-			}
+			public void Populate() =>
+				_prefab.Populate(_startCount);
 		}
 	}
 }
