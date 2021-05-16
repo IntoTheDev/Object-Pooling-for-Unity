@@ -88,12 +88,12 @@ public class Health : MonoBehaviour, IPoolable
 	
 	private float _health = 0f;
 	
+	// Awake will be called on first _prefab.Get()
 	private void Awake() =>
 		OnGet();
 		
 	// IPoolable method
-	// Not being called if object was created first time
-	// All next times will be called
+	// This method will be called on all next _prefab.Get()
 	public void OnGet() =>
 		_health = _maxHealth;
 		
