@@ -100,6 +100,9 @@ namespace ToolBox.Pools
 
 		public void Release(GameObject instance)
 		{
+			var poolable = instance.GetComponent<Poolable>();
+			poolable.OnRelease();
+			
 			instance.SetActive(false);
 
 			var instanceTransform = instance.transform;
@@ -107,8 +110,6 @@ namespace ToolBox.Pools
 			instanceTransform.rotation = _rotation;
 			instanceTransform.localScale = _scale;
 
-			var poolable = instance.GetComponent<Poolable>();
-			poolable.OnRelease();
 			_instances.Push(poolable);
 		}
 
