@@ -92,6 +92,8 @@ public class Health : MonoBehaviour, IPoolable
 		_health = _maxHealth;
 		
 	// IPoolable method
+	// Not being called if object was created first time
+	// All next times will be called
 	public void OnGet() =>
 		_health = _maxHealth;
 		
