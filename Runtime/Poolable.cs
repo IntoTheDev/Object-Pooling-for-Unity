@@ -6,14 +6,19 @@ namespace ToolBox.Pools
 	internal sealed class Poolable : MonoBehaviour
 	{
 		private IPoolable[] _poolables = new IPoolable[0];
-
-		private void Awake() =>
+		private bool _isInitialized = false;
+		
+		private void Awake()
+		{
 			_poolables = GetComponentsInChildren<IPoolable>(true);
+			_isInitialized = true;
+		}
 
 		public void OnGet()
 		{
-			for (int i = 0; i < _poolables.Length; i++)
-				_poolables[i].OnGet();
+			if (_isInitialized)
+				for (int i = 0; i < _poolables.Length; i++)
+					_poolables[i].OnGet();
 		}
 
 		public void OnRelease()
