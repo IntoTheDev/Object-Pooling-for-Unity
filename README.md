@@ -89,7 +89,7 @@ public class Health : MonoBehaviour, IPoolable
 	private float _health = 0f;
 	
 	private void Awake() =>
-		_health = _maxHealth;
+		OnGet();
 		
 	// IPoolable method
 	// Not being called if object was created first time
