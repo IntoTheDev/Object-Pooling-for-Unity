@@ -10,10 +10,10 @@ namespace ToolBox.Pools
 		private readonly Quaternion _rotation = default;
 		private readonly Vector3 _scale = default;
 
-		private static readonly Dictionary<int, Pool> _prefabLookup = new Dictionary<int, Pool>(100);
-		private static readonly Dictionary<int, Pool> _instanceLookup = new Dictionary<int, Pool>(10000);
+		private static readonly Dictionary<GameObject, Pool> _prefabLookup = new Dictionary<GameObject, Pool>(64);
+		private static readonly Dictionary<GameObject, Pool> _instanceLookup = new Dictionary<GameObject, Pool>(512);
 
-		private const int CAPACITY = 100;
+		private const int CAPACITY = 128;
 
 		public Pool(GameObject prefab)
 		{
@@ -27,7 +27,7 @@ namespace ToolBox.Pools
 			}
 
 			_instances = new Stack<Poolable>(CAPACITY);
-			_prefabLookup.Add(prefab.GetHashCode(), this);
+			_prefabLookup.Add(prefab, this);
 
 			var transform = prefab.transform;
 			_rotation = transform.rotation;
@@ -36,7 +36,7 @@ namespace ToolBox.Pools
 
 		public static Pool GetPrefabPool(GameObject prefab)
 		{
-			bool hasPool = _prefabLookup.TryGetValue(prefab.GetHashCode(), out var pool);
+			bool hasPool = _prefabLookup.TryGetValue(prefab, out var pool);
 
 			if (!hasPool)
 				pool = new Pool(prefab);
@@ -45,7 +45,7 @@ namespace ToolBox.Pools
 		}
 
 		public static bool TryGetInstancePool(GameObject instance, out Pool pool) =>
-			_instanceLookup.TryGetValue(instance.GetHashCode(), out pool);
+			_instanceLookup.TryGetValue(instance, out pool);
 
 		public void Populate(int count)
 		{
@@ -165,7 +165,7 @@ namespace ToolBox.Pools
 		private Poolable CreateInstance()
 		{
 			var instance = Object.Instantiate(_prefab);
-			_instanceLookup.Add(instance.gameObject.GetHashCode(), this);
+			_instanceLookup.Add(instance.gameObject, this);
 
 			return instance;
 		}
