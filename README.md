@@ -1,7 +1,7 @@
 # Object Pooling for Unity
 
 ### TODO
-- [ ] Zenject version
+- [x] Zenject version
 
 ## Features
 - Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
@@ -104,6 +104,15 @@ public class Health : MonoBehaviour, IPoolable
 	public void OnRelease() { }
 }
 ```
+
+### How to enable Zenject support
+
+1. Open `Project Settings` of your project and select `Player` tab
+2. Find `Scripting Define Symbols` and add `ZENJECT` to that list
+3. Press the `Apply` button
+   
+
+   ![](https://i.imgur.com/msJUR5k.png)
 
 ### Peformance test:
 Creating and destroying 1000 objects.
