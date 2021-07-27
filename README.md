@@ -8,7 +8,7 @@
 - Easy to use
 - Easy to integrate with already written spawn systems
 - Callbacks OnGet & OnRelease for resseting object state
-- Works with Zenject
+- Works with Zenject (auto injection into pool's game objects) 
 
 ## How to Install
 ### Git Installation (Best way to get latest version)
