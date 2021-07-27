@@ -108,9 +108,10 @@ public class Health : MonoBehaviour, IPoolable
 
 ### How to enable Zenject support
 
-1. Open `Project Settings` of your project and select `Player` tab
-2. Find `Scripting Define Symbols` and add `ZENJECT` to that list
-3. Press the `Apply` button
+1. Import [Zenject](https://github.com/modesttree/Zenject) into your project
+2. Open `Project Settings` of your project and select `Player` tab
+3. Find `Scripting Define Symbols` and add `ZENJECT`
+4. Press the `Apply` button
    
 
    ![](https://i.imgur.com/msJUR5k.png)
