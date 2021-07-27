@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 #if ZENJECT
+using UnityEngine.SceneManagement;
 using Zenject;
 #endif
 
@@ -14,6 +15,8 @@ namespace ToolBox.Pools
         private readonly Vector3 _scale = default;
 #if ZENJECT
         private readonly DiContainer _projectContainer = null;
+        private DiContainer _sceneContainer = null;
+        private Scene _currentScene = default;
 #endif
         
         private static readonly Dictionary<GameObject, Pool> _prefabLookup = new Dictionary<GameObject, Pool>(64);
@@ -34,6 +37,7 @@ namespace ToolBox.Pools
 
 #if ZENJECT
             _projectContainer = ProjectContext.Instance.Container;
+            UpdateContainer();
 #endif
             _instances = new Stack<Poolable>(CAPACITY);
             _prefabLookup.Add(prefab, this);
@@ -177,13 +181,22 @@ namespace ToolBox.Pools
             var instanceGameObject = instance.gameObject;
             _instanceLookup.Add(instanceGameObject, this);
 #if ZENJECT
-            _projectContainer
-                .Resolve<SceneContextRegistry>()
-                .GetContainerForScene(instanceGameObject.scene)
-                .InjectGameObject(instanceGameObject);
+            if (!_currentScene.isLoaded)
+                UpdateContainer();
+            
+            _sceneContainer.InjectGameObject(instanceGameObject);
 #endif
 
             return instance;
         }
+
+#if ZENJECT
+        private void UpdateContainer()
+        {
+            _currentScene = SceneManager.GetActiveScene();
+            _sceneContainer = _projectContainer.Resolve<SceneContextRegistry>()
+                .GetContainerForScene(_currentScene);
+        }
+#endif
     }
 }
