@@ -2,6 +2,7 @@
 
 ### TODO
 - [x] Zenject support
+- [ ] Rename some API to make it more clarifying
 
 ## Features
 - Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
