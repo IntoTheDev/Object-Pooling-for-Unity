@@ -1,11 +1,12 @@
 using UnityEngine;
+using System;
 
 namespace ToolBox.Pools
 {
 	[DisallowMultipleComponent]
 	internal sealed class Poolable : MonoBehaviour
 	{
-		private IPoolable[] _poolables = new IPoolable[0];
+		private IPoolable[] _poolables = Array.Empty<IPoolable>();
 		private bool _isInitialized = false;
 		
 		private void Awake()
