@@ -63,7 +63,11 @@ namespace ToolBox.Pools
         public void Populate(int count)
         {
             for (int i = 0; i < count; i++)
-                _instances.Push(CreateInstance());
+            {
+                var instance = CreateInstance();
+                instance.gameObject.SetActive(false);
+                _instances.Push(instance);
+            }
         }
 
         public GameObject Get()
