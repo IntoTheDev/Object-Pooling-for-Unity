@@ -2,7 +2,11 @@
 {
 	public interface IPoolable
 	{
-		void OnGet();
+		/// <summary>
+		/// This method will be called on 2nd Reuse call.
+		/// Use Unity's Awake method for first initialization and this method for others
+		/// </summary>
+		void OnReuse();
 		void OnRelease();
 	}
 }

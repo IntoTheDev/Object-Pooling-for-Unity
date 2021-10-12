@@ -1,9 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-#if ZENJECT
-using UnityEngine.SceneManagement;
-using Zenject;
-#endif
 
 namespace ToolBox.Pools
 {
@@ -13,16 +9,11 @@ namespace ToolBox.Pools
         private readonly Stack<Poolable> _instances = null;
         private readonly Quaternion _rotation = default;
         private readonly Vector3 _scale = default;
-#if ZENJECT
-        private readonly DiContainer _projectContainer = null;
-        private DiContainer _sceneContainer = null;
-        private Scene _currentScene = default;
-#endif
-        
+
         private static readonly Dictionary<GameObject, Pool> _prefabLookup = new Dictionary<GameObject, Pool>(64);
         private static readonly Dictionary<GameObject, Pool> _instanceLookup = new Dictionary<GameObject, Pool>(512);
 
-        private const int CAPACITY = 128;
+        private const int INITIAL_SIZE = 128;
 
         public Pool(GameObject prefab)
         {
@@ -34,12 +25,8 @@ namespace ToolBox.Pools
                 Object.DontDestroyOnLoad(_prefab);
                 _prefab.gameObject.SetActive(false);
             }
-
-#if ZENJECT
-            _projectContainer = ProjectContext.Instance.Container;
-            UpdateContainer();
-#endif
-            _instances = new Stack<Poolable>(CAPACITY);
+            
+            _instances = new Stack<Poolable>(INITIAL_SIZE);
             _prefabLookup.Add(prefab, this);
 
             var transform = prefab.transform;
@@ -57,8 +44,10 @@ namespace ToolBox.Pools
             return pool;
         }
 
-        public static bool TryGetInstancePool(GameObject instance, out Pool pool) =>
-            _instanceLookup.TryGetValue(instance, out pool);
+        public static bool TryGetInstancePool(GameObject instance, out Pool pool)
+        {
+            return _instanceLookup.TryGetValue(instance, out pool);
+        }
 
         public void Populate(int count)
         {
@@ -70,14 +59,14 @@ namespace ToolBox.Pools
             }
         }
 
-        public GameObject Get()
+        public GameObject Reuse()
         {
             var instance = GetInstance();
 
             return instance.gameObject;
         }
 
-        public GameObject Get(Transform parent)
+        public GameObject Reuse(Transform parent)
         {
             var instance = GetInstance();
 
@@ -86,7 +75,7 @@ namespace ToolBox.Pools
             return instance.gameObject;
         }
 
-        public GameObject Get(Transform parent, bool worldPositionStays)
+        public GameObject Reuse(Transform parent, bool worldPositionStays)
         {
             var instance = GetInstance();
 
@@ -95,7 +84,7 @@ namespace ToolBox.Pools
             return instance.gameObject;
         }
 
-        public GameObject Get(Vector3 position, Quaternion rotation)
+        public GameObject Reuse(Vector3 position, Quaternion rotation)
         {
             var instance = GetInstance();
 
@@ -104,7 +93,7 @@ namespace ToolBox.Pools
             return instance.gameObject;
         }
 
-        public GameObject Get(Vector3 position, Quaternion rotation, Transform parent)
+        public GameObject Reuse(Vector3 position, Quaternion rotation, Transform parent)
         {
             var instance = GetInstance();
             var instanceTransform = instance.transform;
@@ -148,7 +137,7 @@ namespace ToolBox.Pools
 
                         if (instance != null)
                         {
-                            instance.OnGet();
+                            instance.OnReuse();
                             instance.gameObject.SetActive(true);
 
                             return instance;
@@ -162,13 +151,11 @@ namespace ToolBox.Pools
 
                     return instance;
                 }
-                else
-                {
-                    instance.OnGet();
-                    instance.gameObject.SetActive(true);
 
-                    return instance;
-                }
+                instance.OnReuse();
+                instance.gameObject.SetActive(true);
+
+                return instance;
             }
             else
             {
@@ -184,23 +171,8 @@ namespace ToolBox.Pools
             var instance = Object.Instantiate(_prefab);
             var instanceGameObject = instance.gameObject;
             _instanceLookup.Add(instanceGameObject, this);
-#if ZENJECT
-            if (!_currentScene.isLoaded)
-                UpdateContainer();
-            
-            _sceneContainer.InjectGameObject(instanceGameObject);
-#endif
 
             return instance;
         }
-
-#if ZENJECT
-        private void UpdateContainer()
-        {
-            _currentScene = SceneManager.GetActiveScene();
-            _sceneContainer = _projectContainer.Resolve<SceneContextRegistry>()
-                .GetContainerForScene(_currentScene);
-        }
-#endif
     }
 }

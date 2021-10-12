@@ -15,11 +15,13 @@ namespace ToolBox.Pools
 			_isInitialized = true;
 		}
 
-		public void OnGet()
+		public void OnReuse()
 		{
-			if (_isInitialized)
-				for (int i = 0; i < _poolables.Length; i++)
-					_poolables[i].OnGet();
+			if (!_isInitialized)
+				return;
+			
+			for (int i = 0; i < _poolables.Length; i++)
+				_poolables[i].OnReuse();
 		}
 
 		public void OnRelease()
