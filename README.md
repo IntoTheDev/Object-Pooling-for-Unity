@@ -1,15 +1,13 @@
 # Object Pooling for Unity
 
 ### TODO
-- [x] Zenject support
-- [ ] Rename some API to make it more clarifying
+- [x] Rename API to make it more clarifying
 
 ## Features
 - Faster in terms of performance than Instantiate/Destroy (Test at the end of README)
 - Easy to use
 - Easy to integrate with already written spawn systems
-- Callbacks OnGet & OnRelease for resseting object state
-- Works with Zenject (auto injection into pool's game objects) 
+- Callbacks OnReuse & OnRelease to reset object's state
 
 ## How to Install
 ### Git Installation (Best way to get latest version)
@@ -57,10 +55,10 @@ public class Spawner : MonoBehaviour
 	
 	public void Spawn()
 	{
-		_prefab.Get(transform.position, transform.rotation);
+		_prefab.Reuse(transform.position, transform.rotation);
 		
 		// Get object from pool with component
-		_prefab.Get<Rigidbody>(transform.position, transform.rotation).isKinematic = true;
+		_prefab.Reuse<Rigidbody>(transform.position, transform.rotation).isKinematic = true;
 	}
 }
 ```
@@ -76,7 +74,7 @@ public class Spawner : MonoBehaviour
 	
 	public void Spawn()
 	{
-		var instance = _prefab.Get(transform.position, transform.rotation);
+		var instance = _prefab.Reuse(transform.position, transform.rotation);
 		instance.Release();
 	}
 }
@@ -94,28 +92,25 @@ public class Health : MonoBehaviour, IPoolable
 	private float _health = 0f;
 	
 	// Awake will be called on first _prefab.Get()
-	private void Awake() =>
-		OnGet();
+	private void Awake() 
+	{
+		OnReuse();
+	}
 		
 	// IPoolable method
-	// This method will be called on all next _prefab.Get()
-	public void OnGet() =>
+	/// <summary>
+	/// This method will be called on 2nd Reuse call.
+	/// Use Unity's Awake method for first initialization and this method for others
+	/// </summary>
+	public void OnReuse()
+	{
 		_health = _maxHealth;
+	}
 		
 	// IPoolable method
 	public void OnRelease() { }
 }
 ```
-
-### How to enable Zenject support
-
-1. Import [Zenject](https://github.com/modesttree/Zenject) into your project
-2. Open `Project Settings` of your project and select `Player` tab
-3. Find `Scripting Define Symbols` and add `ZENJECT`
-4. Press the `Apply` button
-   
-
-   ![](https://i.imgur.com/msJUR5k.png)
 
 ### Peformance test:
 Creating and destroying 1000 objects.
@@ -175,7 +170,7 @@ public class Tester : MonoBehaviour
 		
 		for (int i = 0; i < 1000; i++)
 		{
-			var instance = _object.Get();
+			var instance = _object.Reuse();
 			instance.Release();
 		}
 		
