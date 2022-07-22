@@ -91,7 +91,7 @@ public class Health : MonoBehaviour, IPoolable
 	
 	private float _health = 0f;
 	
-	// Awake will be called on first _prefab.Get()
+	// Awake will be called on first _prefab.Reuse()
 	private void Awake() 
 	{
 		OnReuse();
