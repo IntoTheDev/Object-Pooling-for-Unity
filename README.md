@@ -44,6 +44,25 @@ Also, you can just put PoolInstaller component on any object on Scene and select
 
 ![](https://i.imgur.com/gnyZ0RQ.png)
 
+### How to clear pool and it's instances
+```csharp
+using ToolBox.Pools;
+using UnityEngine;
+
+public class Spawner : MonoBehaviour
+{
+	[SerializeField] private GameObject _prefab = null;
+	
+	private void Awake()
+	{
+		_prefab.Populate(count: 50);
+		
+		// If destroy active is true then even active instances will be destroyed
+		_prefab.Clear(destroyActive: true)
+	}
+}
+```
+
 ### How to get object from pool:
 ```csharp
 using ToolBox.Pools;
