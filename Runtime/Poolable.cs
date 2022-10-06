@@ -7,7 +7,7 @@ namespace ToolBox.Pools
 	internal sealed class Poolable : MonoBehaviour
 	{
 		private IPoolable[] _poolables = Array.Empty<IPoolable>();
-		private bool _isInitialized = false;
+		private bool _isInitialized;
 		
 		private void Awake()
 		{
@@ -15,18 +15,23 @@ namespace ToolBox.Pools
 			_isInitialized = true;
 		}
 
+		private void OnDestroy()
+		{
+			Pool.Remove(gameObject);
+		}
+
 		public void OnReuse()
 		{
 			if (!_isInitialized)
 				return;
 			
-			for (int i = 0; i < _poolables.Length; i++)
+			for (var i = 0; i < _poolables.Length; i++)
 				_poolables[i].OnReuse();
 		}
 
 		public void OnRelease()
 		{
-			for (int i = 0; i < _poolables.Length; i++)
+			for (var i = 0; i < _poolables.Length; i++)
 				_poolables[i].OnRelease();
 		}
 	}

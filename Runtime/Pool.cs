@@ -5,58 +5,95 @@ namespace ToolBox.Pools
 {
     internal sealed class Pool
     {
-        private readonly Poolable _prefab = null;
-        private readonly Stack<Poolable> _instances = null;
-        private readonly Quaternion _rotation = default;
-        private readonly Vector3 _scale = default;
+        private GameObject _source;
+        private Poolable _prototype;
+        private Stack<Poolable> _instances;
+        private List<GameObject> _allInstances;
+        private readonly Quaternion _rotation;
+        private readonly Vector3 _scale;
+        private readonly bool _prototypeIsNotSource;
 
         private static readonly Dictionary<GameObject, Pool> _prefabLookup = new Dictionary<GameObject, Pool>(64);
         private static readonly Dictionary<GameObject, Pool> _instanceLookup = new Dictionary<GameObject, Pool>(512);
 
-        private const int INITIAL_SIZE = 128;
+        private const int InitialSize = 128;
 
         public Pool(GameObject prefab)
         {
-            _prefab = prefab.GetComponent<Poolable>();
+            _source = prefab;
+            _prototype = prefab.GetComponent<Poolable>();
 
-            if (_prefab == null)
+            if (_prototype == null)
             {
-                _prefab = Object.Instantiate(prefab).AddComponent<Poolable>();
-                Object.DontDestroyOnLoad(_prefab);
-                _prefab.gameObject.SetActive(false);
+                _prototype = Object.Instantiate(prefab).AddComponent<Poolable>();
+                Object.DontDestroyOnLoad(_prototype);
+                _prototype.gameObject.SetActive(false);
+                _prototypeIsNotSource = true;
             }
             
-            _instances = new Stack<Poolable>(INITIAL_SIZE);
-            _prefabLookup.Add(prefab, this);
+            _instances = new Stack<Poolable>(InitialSize);
+            _allInstances = new List<GameObject>(InitialSize);
+            _prefabLookup.Add(_source, this);
 
             var transform = prefab.transform;
             _rotation = transform.rotation;
             _scale = transform.localScale;
         }
 
-        public static Pool GetPrefabPool(GameObject prefab)
+        public static Pool GetPoolByPrefab(GameObject prefab, bool create = true)
         {
-            bool hasPool = _prefabLookup.TryGetValue(prefab, out var pool);
+            var hasPool = _prefabLookup.TryGetValue(prefab, out var pool);
 
-            if (!hasPool)
+            if (!hasPool && create)
                 pool = new Pool(prefab);
 
             return pool;
         }
 
-        public static bool TryGetInstancePool(GameObject instance, out Pool pool)
+        public static bool GetPoolByInstance(GameObject instance, out Pool pool)
         {
             return _instanceLookup.TryGetValue(instance, out pool);
         }
 
+        public static void Remove(GameObject instance)
+        {
+            _instanceLookup.Remove(instance);
+        }
+
         public void Populate(int count)
         {
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var instance = CreateInstance();
                 instance.gameObject.SetActive(false);
                 _instances.Push(instance);
             }
+        }
+
+        public void Clear(bool destroyActive)
+        {
+            _prefabLookup.Remove(_source);
+            
+            foreach (var instance in _allInstances)
+            {
+                if (instance == null)
+                    continue;
+
+                _instanceLookup.Remove(instance);
+                
+                if (!destroyActive && instance.activeInHierarchy)
+                    continue;
+                
+                Object.Destroy(instance);
+            }
+            
+            if (_prototypeIsNotSource)
+                Object.Destroy(_prototype.gameObject);
+
+            _source = null;
+            _prototype = null;
+            _instances = null;
+            _allInstances = null;
         }
 
         public GameObject Reuse()
@@ -121,7 +158,7 @@ namespace ToolBox.Pools
 
         private Poolable GetInstance()
         {
-            int count = _instances.Count;
+            var count = _instances.Count;
 
             if (count != 0)
             {
@@ -168,9 +205,11 @@ namespace ToolBox.Pools
 
         private Poolable CreateInstance()
         {
-            var instance = Object.Instantiate(_prefab);
+            var instance = Object.Instantiate(_prototype);
             var instanceGameObject = instance.gameObject;
+            
             _instanceLookup.Add(instanceGameObject, this);
+            _allInstances.Add(instanceGameObject);
 
             return instance;
         }

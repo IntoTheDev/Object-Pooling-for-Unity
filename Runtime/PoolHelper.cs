@@ -6,32 +6,37 @@ namespace ToolBox.Pools
 	{
 		public static void Populate(this GameObject prefab, int count)
 		{
-			Pool.GetPrefabPool(prefab).Populate(count);
+			Pool.GetPoolByPrefab(prefab).Populate(count);
+		}
+
+		public static void Clear(this GameObject prefab, bool destroyActive)
+		{
+			Pool.GetPoolByPrefab(prefab, false)?.Clear(destroyActive);
 		}
 
 		public static GameObject Reuse(this GameObject prefab)
 		{
-			return Pool.GetPrefabPool(prefab).Reuse();
+			return Pool.GetPoolByPrefab(prefab).Reuse();
 		}
 
 		public static GameObject Reuse(this GameObject prefab, Transform parent)
 		{
-			return Pool.GetPrefabPool(prefab).Reuse(parent);
+			return Pool.GetPoolByPrefab(prefab).Reuse(parent);
 		}
 
 		public static GameObject Reuse(this GameObject prefab, Transform parent, bool worldPositionStays)
 		{
-			return Pool.GetPrefabPool(prefab).Reuse(parent, worldPositionStays);
+			return Pool.GetPoolByPrefab(prefab).Reuse(parent, worldPositionStays);
 		}
 
 		public static GameObject Reuse(this GameObject prefab, Vector3 position, Quaternion rotation)
 		{
-			return Pool.GetPrefabPool(prefab).Reuse(position, rotation);
+			return Pool.GetPoolByPrefab(prefab).Reuse(position, rotation);
 		}
 
 		public static GameObject Reuse(this GameObject prefab, Vector3 position, Quaternion rotation, Transform parent)
 		{
-			return Pool.GetPrefabPool(prefab).Reuse(position, rotation, parent);
+			return Pool.GetPoolByPrefab(prefab).Reuse(position, rotation, parent);
 		}
 
 		public static T Reuse<T>(this GameObject prefab) where T : Component
@@ -61,7 +66,7 @@ namespace ToolBox.Pools
 
 		public static void Release(this GameObject instance)
 		{
-			bool isPooled = Pool.TryGetInstancePool(instance, out var pool);
+			var isPooled = Pool.GetPoolByInstance(instance, out var pool);
 
 			if (isPooled)
 			{
